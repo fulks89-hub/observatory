@@ -4,7 +4,7 @@
 
 [![Watch the Observatory product walkthrough](docs/media/observatory-overview-readme.gif)](docs/media/observatory-overview.mp4)
 
-**[Watch the 75-second Observatory walkthrough](docs/media/observatory-overview.mp4)** · [Transcript](docs/media/observatory-overview-script.txt) · [WebVTT captions](docs/media/observatory-overview.vtt)
+**[Watch the 65-second Observatory walkthrough](docs/media/observatory-overview.mp4)** · [Transcript](docs/media/observatory-overview-script.txt) · [WebVTT captions](docs/media/observatory-overview.vtt)
 
 Observatory keeps durable knowledge, projects, research, decisions, skills, and owner-reviewed working preferences in a provider-neutral repository. Search indexes, graphs, dashboards, embeddings, caches, and runtime memory are disposable projections; ordinary Markdown remains authoritative.
 
