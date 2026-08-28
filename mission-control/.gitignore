@@ -1,0 +1,12 @@
+node_modules/
+dist/
+public/data/snapshot.json
+public/data/explore.json
+data/preferences.json
+data/airadar/
+config/ngrok-policy.local.yml
+.env
+.env.*
+*.key
+*.pem
+.DS_Store

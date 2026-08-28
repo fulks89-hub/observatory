@@ -1,0 +1,29 @@
+[
+  {
+    "id": "observatory",
+    "name": "Observatory",
+    "repo": "",
+    "localNames": ["observatory", "observatory-template"],
+    "kind": "Knowledge system",
+    "accent": "violet",
+    "description": "A local-first knowledge system in Markdown and Git."
+  },
+  {
+    "id": "airadar",
+    "name": "AI Radar",
+    "repo": "",
+    "localNames": ["ai-radar", "ai-radar-template", "AIRadar"],
+    "kind": "Signal intelligence",
+    "accent": "mint",
+    "description": "Project-fit AI discovery with reviewable evidence and optional personal inputs."
+  },
+  {
+    "id": "example-project",
+    "name": "Example Project",
+    "repo": "",
+    "localNames": ["example-project"],
+    "kind": "Active project",
+    "accent": "blue",
+    "description": "Replace this card with a project you want Mission Control to track."
+  }
+]

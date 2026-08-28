@@ -1,0 +1,28 @@
+version: 1
+validator: scripts/validate.rb
+preservation_guard: scripts/check_preservation.rb
+derived_catalog: scripts/build_catalog.rb
+scope:
+  - concepts
+  - sources
+  - research
+  - people
+  - ideas
+  - questions
+  - projects
+checks:
+  yaml_frontmatter: error
+  missing_type: error
+  unknown_type: allow
+  malformed_sources: error
+  malformed_project_status: error
+  duplicate_id: error
+  broken_internal_link: warning
+  reserved_filename_misuse: error
+  likely_secret: error
+  destructive_change_without_human_approval: error
+  catalog_reproducibility: test
+exceptions:
+  reserved_root_files:
+    - index.md
+    - log.md

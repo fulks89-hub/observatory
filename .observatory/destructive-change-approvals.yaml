@@ -1,0 +1,9 @@
+version: 1
+approvals: []
+
+# Human-approved destructive corpus changes may be listed as mappings with:
+# - path: concepts/example.md
+#   base_commit: full Git object ID used by the preservation check
+#   kinds: [delete, frontmatter, sources, verification, footnotes, headings, body_reduction]
+#   approved_by: human:<identifier>
+#   reason: Why removing this durable knowledge is intentional

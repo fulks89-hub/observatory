@@ -1,0 +1,56 @@
+{
+  "capturedAt": null,
+  "projects": {
+    "observatory": {
+      "phase": "Ready to customize",
+      "health": "healthy",
+      "ci": "unknown",
+      "openPrs": 0,
+      "openIssues": 0,
+      "objective": "Build a durable, navigable knowledge base without locking canonical knowledge into a vendor.",
+      "nextActions": ["Replace the example project card and seed concepts."],
+      "blockers": [],
+      "lastUpdated": null
+    },
+    "airadar": {
+      "phase": "Optional companion",
+      "health": "setup",
+      "ci": "unknown",
+      "openPrs": 0,
+      "openIssues": 0,
+      "objective": "Surface AI developments that connect to configured project goals.",
+      "nextActions": ["Place an AI Radar checkout in a configured project root."],
+      "blockers": ["No local AI Radar report has been connected yet."],
+      "lastUpdated": null
+    },
+    "example-project": {
+      "phase": "Example",
+      "health": "setup",
+      "ci": "unknown",
+      "openPrs": 0,
+      "openIssues": 0,
+      "objective": "Demonstrate how Mission Control represents a project objective and attention queue.",
+      "nextActions": ["Replace this entry in config/projects.json."],
+      "blockers": ["This is placeholder data."],
+      "lastUpdated": null
+    }
+  },
+  "airadar": {
+    "daily": { "generated_at": null, "projects": [], "trends": [] },
+    "weekly": { "generated_at": null, "projects": [], "trends": [] },
+    "x": {
+      "enabled": false,
+      "status": "credentials-not-configured",
+      "bookmarks": [],
+      "estimated_spend_this_week_usd": 0,
+      "weekly_budget_usd": 0,
+      "resources_read_this_week": 0
+    },
+    "inbox": { "captures": [] },
+    "watchlist": {
+      "people": [],
+      "projects": [],
+      "repositories": []
+    }
+  }
+}

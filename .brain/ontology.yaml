@@ -1,0 +1,99 @@
+version: 1
+format: OKF-0.2
+
+types:
+  Concept:
+    purpose: Synthesized durable knowledge about a topic.
+    path: concepts/
+  Source:
+    purpose: A specific article, paper, video, book, conversation, dataset, or other source artifact.
+    path: sources/
+  ResearchDossier:
+    purpose: Long-form, multi-source investigation that preserves reusable depth beyond compact source and concept cards.
+    path: research/
+  Person:
+    purpose: A person or organization meaningful to the knowledge graph.
+    path: people/
+  Idea:
+    purpose: Original thought, hypothesis, product idea, or interpretation.
+    path: ideas/
+  Question:
+    purpose: An unresolved research question.
+    path: questions/
+  Project:
+    purpose: An active project map that links relevant knowledge without duplicating it.
+    path: projects/
+    status_extension: project_status
+    status_values:
+      - planning
+      - active
+      - paused
+      - completed
+      - abandoned
+  OperatingPrinciple:
+    purpose: A reviewed transferable principle describing how the owner prefers consequential decisions to be evaluated.
+    path: personal-operating-model/
+  OperatingPreference:
+    purpose: A scoped, contextual working preference that may guide an agent but does not override current instructions or evidence.
+    path: personal-operating-model/
+  OperatingLesson:
+    purpose: A reusable lesson from reviewed outcomes, failures, corrections, or repeated experience.
+    path: personal-operating-model/
+
+relationships:
+  representation: standard_markdown_links
+  guidance:
+    - use descriptive link text
+    - prefer relative repository links
+    - relationships should be understandable from surrounding prose
+    - backlinks may be derived by tools and need not be duplicated mechanically
+
+naming:
+  filenames: lowercase-kebab-case
+  preserve_common_acronyms_in_titles: true
+  one_primary_concept_per_file: true
+
+brain_card:
+  preferred_sections:
+    - TL;DR
+    - Why it matters
+    - Core ideas
+    - How it works
+    - Examples
+    - Connections
+    - Open questions
+
+research_dossier:
+  purpose: Preserve consequential research deeply enough that a future owner or agent can reuse the synthesis without reopening most original sources.
+  guidance:
+    - research beyond a single supplied artifact
+    - preserve evidence disagreement uncertainty implementation and failure modes
+    - keep source and concept cards compact and link them to dossiers
+    - prefer primary sources and claim-level provenance where material
+    - update the same dossier as the research question evolves
+
+personal_operating_model:
+  purpose: Preserve owner-controlled decision principles, working preferences, and transferable lessons without turning them into an always-loaded profile.
+  guidance:
+    - retrieve only when owner-specific operating context could materially affect the task
+    - current instructions and stronger evidence outrank stored preferences
+    - scope preferences narrowly enough to avoid cross-domain leakage
+    - preserve temporal conflicts and supersession rather than silently overwriting
+    - inferred patterns require review before canonical promotion
+    - do not infer identity or sensitive traits
+
+folders:
+  derived:
+    - .derived/
+    - .graph/
+    - .embeddings/
+    - .cache/
+  canonical:
+    - concepts/
+    - sources/
+    - research/
+    - people/
+    - ideas/
+    - questions/
+    - projects/
+    - personal-operating-model/

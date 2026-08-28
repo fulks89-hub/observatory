@@ -1,0 +1,70 @@
+name: Validate Observatory
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --disable-pip-version-check -e '.[dev]'
+      - name: Lint Python
+        run: ruff check .
+      - name: Type-check Python
+        run: mypy src
+      - name: Test Python
+        run: pytest
+      - name: Validate with Python
+        run: observatory validate
+      - name: Build Python disposable catalog
+        run: observatory catalog --output "$RUNNER_TEMP/python-observatory-catalog.json"
+      - name: Guard durable knowledge preservation
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          base="${PR_BASE:-$PUSH_BEFORE}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+              base="HEAD^"
+            else
+              echo "Initial fresh-history commit: no preservation base exists."
+              exit 0
+            fi
+          fi
+          if ! git rev-parse --verify "$base^{commit}" >/dev/null 2>&1 \
+            || ! git merge-base --is-ancestor "$base" HEAD; then
+            echo "Fresh-history rewrite: no reachable preservation base exists."
+            exit 0
+          fi
+          observatory preserve "$base"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.12"
+          cache: npm
+          cache-dependency-path: mission-control/package-lock.json
+      - name: Install Mission Control dependencies
+        working-directory: mission-control
+        run: npm ci
+      - name: Check Mission Control scripts
+        working-directory: mission-control
+        run: npm run check
+      - name: Test Mission Control
+        working-directory: mission-control
+        run: npm test
+      - name: Build Mission Control and Explore
+        working-directory: mission-control
+        run: npm run build
