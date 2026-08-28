@@ -1,0 +1,32 @@
+version: 1
+status: uninitialized
+
+enabled: true
+onboarding:
+  offer_interview_when_uninitialized: true
+  block_current_task: false
+  allowed_choices:
+    - start_interview
+    - build_gradually
+    - not_now
+    - dont_ask_again
+  state: not_asked
+
+retrieval:
+  mode: metadata-first-progressive-disclosure
+  default_initial_record_limit: 3
+  load_when_irrelevant: false
+  whole_model_preload: false
+  current_instructions_override: true
+  evidence_may_override_preference: true
+
+promotion:
+  automatic_canonical_promotion: false
+  owner_review_required_for_inferred_patterns: true
+  project_specific_defaults_to_project: true
+  preserve_temporal_conflicts: true
+
+privacy:
+  model_working_patterns_not_identity: true
+  infer_sensitive_traits: false
+  persist_secrets: false

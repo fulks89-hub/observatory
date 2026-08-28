@@ -1,0 +1,4 @@
+interface:
+  display_name: "Narrated Progress Recording"
+  short_description: "Record truthful narrated project progress"
+  default_prompt: "Use $narrated-progress-recording to create a verified narrated progress update for this sprint."

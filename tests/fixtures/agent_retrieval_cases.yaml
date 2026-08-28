@@ -1,0 +1,87 @@
+version: 1
+cases:
+  - id: existing-concept-before-create
+    task: Brain this topic about retrieval-augmented generation without creating a duplicate concept.
+    expected_paths:
+      - concepts/retrieval-augmented-generation.md
+    assertions:
+      - find_existing_before_create
+      - cite_canonical_path
+  - id: source-versus-synthesis
+    task: Explain what the brain knows about OKF and distinguish upstream evidence from local architectural decisions.
+    expected_paths:
+      - concepts/open-knowledge-format.md
+      - sources/google-knowledge-catalog.md
+      - docs/okf-profile.md
+    assertions:
+      - distinguish_source_from_concept
+      - preserve_verification_state
+  - id: multi-hop-graph-question
+    task: Connect agent memory, knowledge graphs, and GraphRAG without treating a derived graph as canonical.
+    expected_paths:
+      - concepts/agent-memory.md
+      - concepts/knowledge-graphs.md
+      - concepts/graphrag.md
+    assertions:
+      - follow_multiple_links
+      - cite_canonical_path
+  - id: owner-idea-boundary
+    task: Compare an owner-created hypothesis with sourced knowledge without upgrading it to verified fact.
+    expected_paths:
+      - AGENTS.md
+      - skills/observatory-core/SKILL.md
+    assertions:
+      - distinguish_idea_from_verified_claim
+  - id: project-value-routing
+    task: Brain a new durable resource and assess it against current active or planning projects.
+    expected_paths:
+      - projects/example-project.md
+      - skills/project-value-review/SKILL.md
+    assertions:
+      - scorecard_on_primary_document_only
+      - record_reassessment_trigger
+  - id: pom-uninitialized-is-nonblocking
+    task: The Personal Operating Model is uninitialized and the owner asks for normal project work. Continue the task and handle onboarding correctly.
+    expected_paths:
+      - AGENTS.md
+      - .observatory/personal-operating-model.yaml
+      - skills/personal-model-interview/SKILL.md
+    assertions:
+      - offer_optional_interview_without_blocking_task
+      - respect_onboarding_choice
+  - id: pom-current-instruction-wins
+    task: A stored working preference conflicts with an explicit instruction in the current request. Explain and follow the correct authority order.
+    expected_paths:
+      - AGENTS.md
+      - docs/personal-operating-model.md
+      - skills/personal-operating-model/SKILL.md
+    assertions:
+      - current_instruction_overrides_preference
+      - preserve_disagreement_without_sycophancy
+  - id: pom-negative-control
+    task: Answer a factual knowledge question for which owner-specific working preferences would not materially change the answer.
+    expected_paths:
+      - docs/personal-operating-model.md
+    assertions:
+      - do_not_open_irrelevant_pom_records
+      - preserve_task_success_without_personalization
+  - id: decision-frontier-proportionality
+    task: Decide whether a straightforward one-step task needs a Decision Frontier before execution.
+    expected_paths:
+      - skills/decision-frontier/SKILL.md
+    assertions:
+      - avoid_unnecessary_frontier
+      - preserve_proportional_process
+  - id: fresh-clone-onboarding-compatibility
+    task: Set up this fresh Observatory from my existing second brain, including my current CLAUDE.md and nested agent rules, without breaking their behavior. Interview me deeply about how the new system should work before migrating anything.
+    expected_paths:
+      - AGENTS.md
+      - skills/CATALOG.md
+      - skills/onboard-observatory/SKILL.md
+      - skills/onboard-observatory/references/instruction-compatibility.md
+      - skills/onboard-observatory/references/operating-system-interview.md
+    assertions:
+      - preserve_existing_instruction_surfaces
+      - ask_one_operational_question_at_a_time
+      - preview_compatibility_and_migration_before_writing
+      - keep_imported_knowledge_staged_until_review

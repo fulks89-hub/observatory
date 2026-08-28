@@ -1,0 +1,11 @@
+{
+  "name": "observatory-release-demo-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "record": "node record-walkthrough.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

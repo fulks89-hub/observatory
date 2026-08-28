@@ -1,0 +1,15 @@
+version: 1
+cases:
+  - id: runtime-memory-boundary
+    query: agent memory runtime retain recall reflect
+    as_of: 2026-08-17
+    top_k: 5
+    expected_paths:
+      - concepts/agent-memory.md
+      - concepts/personal-ai-brain.md
+  - id: okf-canonical-authority
+    query: Open Knowledge Format canonical Markdown Git
+    as_of: 2026-08-17
+    top_k: 5
+    expected_paths:
+      - concepts/open-knowledge-format.md

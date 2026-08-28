@@ -1,0 +1,4 @@
+interface:
+  display_name: "Observatory Onboarding"
+  short_description: "Safely adopt and personalize your Observatory"
+  default_prompt: "Use $onboard-observatory to preserve my existing agent rules, interview me about how my second brain should work, and propose a staged setup."

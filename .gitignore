@@ -1,0 +1,16 @@
+.derived/
+.graph/
+.embeddings/
+.cache/
+.env
+.env.*
+*.pem
+*.key
+vendor/
+.venv/
+node_modules/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
