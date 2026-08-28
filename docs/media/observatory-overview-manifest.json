@@ -1,26 +1,26 @@
 {
   "artifacts": {
     "docs/media/observatory-overview-readme.gif": {
-      "bytes": 5234224,
-      "sha256": "e7197186d505aa72ac82bfaa2538cd7a2a1137b57bb5124deeae33a21fc714f9"
+      "bytes": 5283990,
+      "sha256": "16b1c26c5db9f1bcef580b90daab6828bbc6b3518b0858650961b44620f63852"
     },
     "docs/media/observatory-overview-script.txt": {
       "bytes": 1041,
       "sha256": "701e579bd94faf3198d6ad1799e53e05f3ff7754c7873a41ee32b479cf1db096"
     },
     "docs/media/observatory-overview.mp4": {
-      "bytes": 2683725,
-      "sha256": "1c07507b4ad85c3340d6a3e44758254d0b9f74d65f50c4c1efd27f683bab3227"
+      "bytes": 2736402,
+      "sha256": "b9aeec9417b61cb32eb6f71c6e79f5b5c7ee1ad17b37e25a706b0af0cdbf4c8a"
     },
     "docs/media/observatory-overview.vtt": {
       "bytes": 1169,
       "sha256": "07e0756c01f5ffef0cceca35c872a1468f0aa735b748fdcf068d411ebdfef007"
     }
   },
-  "build_receipt_review_token": "156b121c8701edf64efccc92d4d53e58261f10999a16b260a1b77159afda1c14",
+  "build_receipt_review_token": "21dcd1bf81aab6dc5e752ef1d42b4c07560d58265af92ef81883f66a7f9b37e7",
   "media_probe": {
     "format": {
-      "duration": "65.366667",
+      "duration": "65.480000",
       "tags": {
         "compatible_brands": "isomiso2avc1mp41",
         "encoder": "Lavf63.1.101",
@@ -119,7 +119,7 @@
     "mission-control/tests/hardening.test.mjs": "5e1fa12225677bf9875cfbb8b2d7a9cba50cadea5367a2ecd5b08cb2909945ae",
     "mission-control/vite.config.js": "24c0df2954d9723081d41744f9a4b4c2cc46f671223feb6e5f07b72e8a2a0c69",
     "scripts/demo/README.md": "ac1422c57b414e66466def03da1b08a1ab95681cd2f670405eb2e20e553b0aea",
-    "scripts/demo/build-walkthrough.py": "3e91ed52aacf46d7d2fff11b18b48c63b51f94952376707199f4eb5b6070fb77",
+    "scripts/demo/build-walkthrough.py": "445d954c4eb7df2e745e7604dedf3f12a02a9b55e81bceadf54a128438c57d35",
     "scripts/demo/generate-kokoro-narration.py": "c3fb1231b0bedeb98418dcc41f76ad32f768c5f8a68ad688778c0f5e24f2b37a",
     "scripts/demo/package-lock.json": "f114c692f0fcfcc8235f469a5ae93550ead69e5c87600890539e3f3df4a7ff2b",
     "scripts/demo/package.json": "ebe013b575f2aadafb6fa26044b6a698b4512a118baf1c6a469ffe6c6e67dd41",
@@ -127,10 +127,11 @@
     "scripts/demo/requirements-kokoro.in": "6b047468c87cc0790ec6a4cc55a0fe805d960a01c0c47f758343bef70734ae8c",
     "scripts/demo/requirements-kokoro.txt": "8110c94b4b5cd612cba196f23a0746833260cbe0218028ebcba51a11f703d4ea",
     "scripts/demo/scenes.json": "95371416c04bbd4bc46888e12fa94d56708af3f47772d30542d6d7ca3b77426b",
-    "scripts/demo/verify-walkthrough.py": "e53ccf0899d4e61e635d3416a2de91ff154c0a591050efb26c6ef0e004817626",
-    "scripts/demo/walkthrough_contract.py": "35693fdd20722b973a8dceb01323b1cf24c89a1a3cf77450c532b6b1bdfe98aa"
+    "scripts/demo/verify-walkthrough.py": "3e4d78c3b078c8b70025abdfa69977c43f30d0237ed0f77ebe7bceeea6fa757f",
+    "scripts/demo/walkthrough_contract.py": "ec1260fadb83a1152c2db6482bf78eb61f200bacd5cecff092ce55aafa9c362f"
   },
-  "source_input_tree_sha256": "066476b207a932ef35d30024613035a0cebe9e6710036fea733f50d5c5c5219c",
+  "source_input_tree_sha256": "ba096614389dbb1cc2da954cf295f56a9550a0898c354e57efeca88247c23dbc",
+  "source_revision": "9f6a84df0c16abd524466c67e912cc7896c2fd2e",
   "status": "verified-local-synthetic-walkthrough",
   "tools": {
     "ffmpeg": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
