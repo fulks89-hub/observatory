@@ -11,6 +11,9 @@ def test_fresh_clone_onboarding_contract():
         ROOT
         / "skills/onboard-observatory/references/instruction-compatibility.md"
     ).read_text()
+    preservation = (
+        ROOT / "skills/onboard-observatory/references/preservation-and-rollback.md"
+    ).read_text()
     interview = (
         ROOT
         / "skills/onboard-observatory/references/operating-system-interview.md"
@@ -31,14 +34,31 @@ def test_fresh_clone_onboarding_contract():
     assert "Default to preserving every existing instruction file byte-for-byte" in skill
     assert "compact onboarding blueprint" in skill
     assert "Silence, continued conversation, approval to inventory" in skill
+    assert "Make a verified preservation snapshot" in skill
+    assert "If any source cannot be copied or verified, do not modify it" in skill
     for filename in ("AGENTS.md", "CLAUDE.md", ".github/copilot-instructions.md"):
         assert f"`{filename}`" in compatibility
     assert "Do not execute commands" in compatibility
     assert "Approval to perform the read-only inventory is not approval" in compatibility
+    assert "Hash every backup copy independently" in preservation
+    assert "Rollback is a separate write operation" in preservation
+    assert "never describe rollback as complete" in preservation
     assert "Start with a recent real workflow" in interview
     assert "Keep unused topics in an internal queue" in interview
     assert "Do not turn the topic lists below into a questionnaire" in interview
     assert "Translate answers into a reviewable blueprint" in interview
+
+
+def test_obsidian_local_state_and_first_run_contract():
+    ignored = (ROOT / ".gitignore").read_text().splitlines()
+    readme = (ROOT / "README.md").read_text()
+    start = (ROOT / "START-HERE.md").read_text()
+
+    assert ".obsidian/" in ignored
+    assert "open the repository root directly as an Obsidian vault" in readme
+    assert "no community plugin is required" in readme
+    assert "Open folder as vault" in start
+    assert "CLI and Mission Control do not depend on Obsidian" in start
 
 
 def test_observatory_policy_primary_and_legacy_mirror_match():

@@ -61,6 +61,8 @@ If the agent recognizes repository skills, the shorter prompt works:
 
 The skill first gives a high-level overview of Observatory, explains what onboarding will and will not touch, describes its preserve-first compatibility process, and asks permission to begin. The interview then asks one question at a time about existing notes and repositories, the operating loop you want from a dedicated second brain, active projects, agent autonomy and evidence standards, important people and tools, AI Radar watch targets, and explicit exclusions. It inventories existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules without replacing them, then shows an itemized compatibility and migration blueprint with validation and rollback. Inventory approval does not authorize writes; the agent must obtain a separate explicit approval before applying the bounded plan. Existing material enters `staging/migration/` before any canonical promotion.
 
+For every approved existing file that could change, onboarding first creates a private byte-for-byte preservation snapshot outside the repository, records a manifest, and verifies source and backup SHA-256 values. If the snapshot cannot be verified, that file is not changed. Restoring the manifested files is a separate explicitly approved action.
+
 ## 4. Install and verify Observatory
 
 ```sh
@@ -103,6 +105,12 @@ git add -A
 git commit -m "Set up my Observatory"
 git push
 ```
+
+### Optional: open the repository in Obsidian
+
+In Obsidian, choose **Open folder as vault** and select the repository root. No community plugin is required. Standard Markdown links feed Obsidian's backlinks and graph, while YAML frontmatter remains visible as note properties.
+
+The local `.obsidian/` workspace and plugin directory is ignored by default. This keeps device-specific layout, plugin state, and preferences out of Git while leaving all canonical Observatory Markdown available. The Observatory CLI and Mission Control do not depend on Obsidian and continue to work normally.
 
 ## 6. Run Observatory Mission Control
 
