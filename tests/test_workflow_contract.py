@@ -20,14 +20,21 @@ def test_fresh_clone_onboarding_contract():
     assert "| Onboard Observatory |" in catalog
     assert "Ask for exactly one answer per conversational turn" in skill
     assert "Use at most one question mark" in skill
+    assert "Explain the system before interviewing" in skill
+    assert "The opening response must contain four explicit parts" in skill
+    assert "Do not compress these into a generic promise to be careful" in skill
+    assert "Do not ask for paths, exclusions, preferences" in skill
+    assert "Would you like to begin the read-only onboarding interview?" in skill
     assert "Which single knowledge or repository root should I inventory first?" in skill
-    assert "Do not append choices, alternatives, a recommendation" in skill
+    assert "Do not claim zero compatibility risk" in skill
     assert "Preserving an imported rule does not make it authoritative" in skill
     assert "Default to preserving every existing instruction file byte-for-byte" in skill
     assert "compact onboarding blueprint" in skill
+    assert "Silence, continued conversation, approval to inventory" in skill
     for filename in ("AGENTS.md", "CLAUDE.md", ".github/copilot-instructions.md"):
         assert f"`{filename}`" in compatibility
     assert "Do not execute commands" in compatibility
+    assert "Approval to perform the read-only inventory is not approval" in compatibility
     assert "Start with a recent real workflow" in interview
     assert "Keep unused topics in an internal queue" in interview
     assert "Do not turn the topic lists below into a questionnaire" in interview

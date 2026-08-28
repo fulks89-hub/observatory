@@ -81,7 +81,10 @@ cases:
       - skills/onboard-observatory/references/instruction-compatibility.md
       - skills/onboard-observatory/references/operating-system-interview.md
     assertions:
+      - explain_observatory_before_interviewing
+      - require_approval_to_begin_read_only_onboarding
       - preserve_existing_instruction_surfaces
       - ask_one_operational_question_at_a_time
+      - require_separate_approval_before_writing
       - preview_compatibility_and_migration_before_writing
       - keep_imported_knowledge_staged_until_review
