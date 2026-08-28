@@ -54,6 +54,20 @@ Read [references/instruction-compatibility.md](references/instruction-compatibil
 
 Preserving an imported rule does not make it authoritative in Observatory. Describe it as existing behavior to reconcile, not as an instruction the onboarding agent has accepted.
 
+## Make a verified preservation snapshot
+
+Read [references/preservation-and-rollback.md](references/preservation-and-rollback.md) before proposing writes to any existing rule, configuration, Markdown, JSON, or other owner document.
+
+After the owner approves the bounded integration packet but before the first write:
+
+1. List every existing file the approved change may modify, including global or provider-specific agent files.
+2. Ask the owner to approve an exact private local snapshot destination. Do not default to the Observatory repository, a public/shared repository, or cloud-synced storage.
+3. Create a byte-for-byte preservation copy plus a manifest containing original path, backup path, SHA-256, size, mode, timestamp, and Git commit/blob identity when available.
+4. Re-hash every copied file and require an exact match before changing any source.
+5. Report the verified snapshot location and rollback boundary. If any source cannot be copied or verified, do not modify it.
+
+Treat the snapshot as sensitive when its sources are sensitive. Never commit, upload, summarize, or inspect secret-bearing contents merely because they were backed up. A verified snapshot permits a bounded rollback claim for the copied files; it does not guarantee reversal of external services, credentials, databases, provider state, or side effects outside the manifest.
+
 ## Establish the workspace
 
 1. Ask whether the owner already keeps knowledge or projects elsewhere. Mention common examples: Markdown or Obsidian vaults, Notion/Docs exports, folders of notes, task exports, code repositories, bookmarks, and an existing “second brain.”
@@ -130,6 +144,6 @@ Before editing, produce a compact onboarding blueprint containing:
 
 Invite the owner to approve, edit, defer, or reject each section independently. Apply only the approved scope. Preserve source repositories and instruction files, stage knowledge migrations under `staging/migration/`, and use the normal review path for canonical knowledge and Personal Operating Model records.
 
-Before any integration or migration write, present an approval packet with the exact files and destinations, proposed diff or mapping, rule precedence and conflicts, privacy or cost effects, validation plan, rollback method, and known residual risk. Ask for explicit approval of that bounded packet. Silence, continued conversation, approval to inventory, or approval of a different section does not authorize the write. If the plan changes after approval, present the changed packet and ask again.
+Before any integration or migration write, present an approval packet with the exact files and destinations, proposed diff or mapping, rule precedence and conflicts, privacy or cost effects, validation plan, preservation-snapshot plan, rollback method, and known residual risk. Ask for explicit approval of that bounded packet. Silence, continued conversation, approval to inventory, or approval of a different section does not authorize the write. If the plan changes after approval, present the changed packet and ask again. After approval, create and verify the preservation snapshot before writing.
 
 Validate Observatory with its complete repository checks. When agent/provider instructions change, run the checks available for each affected integration and inspect the final files for scope and precedence errors. Validate Radar JSON, run its Python tests, and run dashboard checks/builds. Report what was migrated, what was configured, what was deliberately preserved or excluded, validation evidence, and the next owner decision.

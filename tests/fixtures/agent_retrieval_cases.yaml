@@ -86,5 +86,6 @@ cases:
       - preserve_existing_instruction_surfaces
       - ask_one_operational_question_at_a_time
       - require_separate_approval_before_writing
+      - create_and_verify_preservation_snapshot_before_writing
       - preview_compatibility_and_migration_before_writing
       - keep_imported_knowledge_staged_until_review

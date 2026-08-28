@@ -35,6 +35,14 @@ Then ask an agent to read `AGENTS.md`, `.observatory/policies.yaml`, `.observato
 
 For a new dedicated second brain, ask: **“Use `$onboard-observatory` to set this up with me.”** Before interviewing, the skill explains what Observatory does, what onboarding will and will not touch, and how existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules are protected. It asks permission to begin the read-only interview, inventories only approved locations, proceeds one question at a time, and requires a separate explicit approval of the compatibility and migration plan before changing anything.
 
+Before an approved integration changes existing rule, configuration, Markdown, JSON, or owner documents, onboarding creates a private byte-for-byte preservation snapshot and verifies every file by SHA-256. The snapshot is not committed or uploaded. A rollback still requires explicit approval and restores only the files listed in its manifest.
+
+## Obsidian
+
+You can open the repository root directly as an Obsidian vault; no community plugin is required. Observatory uses ordinary Markdown, YAML frontmatter, folders, and Markdown links, so notes and graph connections remain readable in Obsidian while the CLI and Mission Control continue to work independently.
+
+Obsidian creates local workspace and plugin state under `.obsidian/`; Observatory ignores that directory by default so device-specific settings do not enter Git accidentally. If you deliberately want shared Obsidian settings, review the exact files and privacy implications before changing the ignore rule.
+
 ## Mission Control
 
 ```sh
