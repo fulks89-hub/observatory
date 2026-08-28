@@ -30,4 +30,6 @@ Do not search machine-wide configuration, user home directories, credentials, or
 
 Use a table with: path, provider, scope, current role, overlaps/conflicts, proposed action, and validation plan. Proposed actions should normally be **preserve**, **link**, **add adapter**, or **defer**. Treat **replace**, **merge**, and **delete** as exceptional and require explicit owner approval.
 
+Before writing, add an approval packet containing the exact diff or mapping, rollback method, residual compatibility risks, and evidence the proposed change preserves each affected rule's scope. Approval to perform the read-only inventory is not approval to apply this packet. Require a direct owner approval for the bounded write, and renew approval if any target or behavior changes.
+
 After any approved change, inspect the exact diff and run the provider's available validation or a bounded smoke test. If no reliable validation exists, label compatibility unverified rather than guessing.
