@@ -1,6 +1,12 @@
 # Security model
 
-Observatory is a private knowledge repository. Its Markdown may contain sensitive personal knowledge even when it contains no credentials.
+This repository is a public, synthetic Observatory scaffold. A real Observatory installation is commonly private, and its Markdown may contain sensitive personal knowledge even when it contains no credentials.
+
+## Supported versions and reporting
+
+Security fixes currently target the latest `main` because versioned releases are not yet published. Use GitHub's **Security** tab and **Report a vulnerability** to report a vulnerability privately. Do not open a public issue for an undisclosed vulnerability.
+
+Provide the smallest synthetic reproducer possible. Do not attach a private corpus, `.env` file, token, personal screenshot, raw private log, or other owner data. If a credential may already be exposed, revoke or rotate it before sending a report.
 
 ## Boundaries
 

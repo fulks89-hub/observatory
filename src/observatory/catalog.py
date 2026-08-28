@@ -20,7 +20,7 @@ def build(root: Path) -> dict[str, Any]:
     nodes: list[dict[str, Any]] = []
 
     for document in documents:
-        targets = corpus.internal_targets(document, root=root)
+        targets = corpus.internal_targets(document, root=root, known_paths=known_paths)
         outgoing = [target for target in targets if target in known_paths]
         for target in outgoing:
             edges.append({"from": document.relative_path, "to": target})

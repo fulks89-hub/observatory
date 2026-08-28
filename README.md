@@ -23,7 +23,10 @@ This is a fresh-history public scaffold. It contains synthetic examples only—n
 Requirements: Git and Python 3.12+. Mission Control additionally requires Node.js 22.12+.
 
 ```sh
-git clone https://github.com/OWNER/observatory.git
+# Replace OWNER with the account or organization publishing the copy you want.
+OBSERVATORY_TEMPLATE_OWNER=OWNER
+test "$OBSERVATORY_TEMPLATE_OWNER" != OWNER || { echo "Replace OWNER before cloning." >&2; exit 2; }
+git clone "https://github.com/${OBSERVATORY_TEMPLATE_OWNER}/observatory.git"
 cd observatory
 scripts/bootstrap-observatory.sh --check
 scripts/bootstrap-observatory.sh --install
@@ -37,9 +40,11 @@ For a new dedicated second brain, ask: **“Use `$onboard-observatory` to set th
 
 Before an approved integration changes existing rule, configuration, Markdown, JSON, or owner documents, onboarding creates a private byte-for-byte preservation snapshot and verifies every file by SHA-256. The snapshot is not committed or uploaded. A rollback still requires explicit approval and restores only the files listed in its manifest.
 
+The executable flow uses `.venv/bin/observatory snapshot create --destination <new-private-directory> --source <absolute-file>`, followed immediately before the write by `snapshot verify <directory> --compare-sources`. `snapshot restore <directory>` only prints a current restore plan and confirmation token; rerunning it with `--confirm-restore <token>` is a separately approved operation. Use `.venv\Scripts\observatory.exe` on Windows.
+
 ## Obsidian
 
-You can open the repository root directly as an Obsidian vault; no community plugin is required. Observatory uses ordinary Markdown, YAML frontmatter, folders, and Markdown links, so notes and graph connections remain readable in Obsidian while the CLI and Mission Control continue to work independently.
+You can open the repository root directly as an Obsidian vault; no community plugin is required. Observatory recognizes ordinary Markdown links and Obsidian `[[wikilinks]]`; standard Markdown links remain the most portable choice across GitHub, Obsidian, and other agents. YAML frontmatter, folders, notes, and graph connections remain readable while the CLI and Mission Control continue to work independently.
 
 Obsidian creates local workspace and plugin state under `.obsidian/`; Observatory ignores that directory by default so device-specific settings do not enter Git accidentally. If you deliberately want shared Obsidian settings, review the exact files and privacy implications before changing the ignore rule.
 

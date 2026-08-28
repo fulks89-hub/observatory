@@ -120,3 +120,35 @@ cases:
     payload = json.loads(capsys.readouterr().out)
     assert payload["passed"] is False
     assert any("not inspected" in failure for failure in payload["failures"])
+
+
+def test_snapshot_cli_create_verify_plan_and_restore(tmp_path, capsys):
+    source = tmp_path / "rules.md"
+    source.write_text("original", encoding="utf-8")
+    destination = tmp_path / "snapshot"
+    assert (
+        main(
+            [
+                "snapshot",
+                "create",
+                "--destination",
+                str(destination),
+                "--source",
+                str(source),
+            ]
+        )
+        == 0
+    )
+    assert main(["snapshot", "verify", str(destination), "--compare-sources"]) == 0
+    source.write_text("changed", encoding="utf-8")
+    assert main(["snapshot", "restore", str(destination)]) == 0
+    token = capsys.readouterr().out.rsplit("--confirm-restore ", 1)[1].strip()
+    assert main(["snapshot", "restore", str(destination), "--confirm-restore", token]) == 0
+    assert source.read_text(encoding="utf-8") == "original"
+
+
+def test_cli_operational_error_is_sanitized_without_traceback(tmp_path, capsys):
+    assert main(["snapshot", "verify", str(tmp_path / "missing")]) == 2
+    error = capsys.readouterr().err
+    assert "snapshot failed:" in error
+    assert "Traceback" not in error

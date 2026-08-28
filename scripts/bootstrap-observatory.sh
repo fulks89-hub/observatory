@@ -2,6 +2,7 @@
 set -eu
 
 MODE=check
+UV_VERSION=0.12.7
 case "${1:-}" in
   ""|--check) ;;
   --install) MODE=install ;;
@@ -106,7 +107,10 @@ else
   "$SELECTED" -m venv "$REPO_ROOT/.venv"
 fi
 
-"$REPO_ROOT/.venv/bin/python" -m pip install -e "${REPO_ROOT}[dev]"
+"$REPO_ROOT/.venv/bin/python" -m pip install --disable-pip-version-check "uv==$UV_VERSION"
+UV_PROJECT_ENVIRONMENT="$REPO_ROOT/.venv" \
+  "$REPO_ROOT/.venv/bin/python" -m uv sync --locked --extra dev \
+  --python "$REPO_ROOT/.venv/bin/python"
 "$REPO_ROOT/.venv/bin/observatory" --help >/dev/null
 "$REPO_ROOT/.venv/bin/observatory" validate --root "$REPO_ROOT"
 printf '%s\n' "install=complete" "cli=$REPO_ROOT/.venv/bin/observatory"

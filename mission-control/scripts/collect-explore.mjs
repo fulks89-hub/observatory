@@ -1,6 +1,7 @@
-import { access, readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteJson } from './atomic-io.mjs';
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const observatoryRoot = resolve(process.env.OBSERVATORY_ROOT || join(appRoot, '..'));
@@ -122,19 +123,9 @@ async function collectPolicyKeys() {
   return yaml.split(/\r?\n/).map((line) => line.match(/^([A-Za-z0-9_-]+):\s*$/)?.[1]).filter(Boolean);
 }
 
-async function collectPomState() {
-  const path = join(observatoryRoot, '.observatory', 'personal-operating-model.yaml');
-  if (!(await exists(path))) return { status: 'uninitialized', interviewOptional: true };
-  const yaml = await readFile(path, 'utf8');
-  const status = yaml.match(/^status:\s*([^\s#]+)/m)?.[1] || 'uninitialized';
-  const interviewOptional = /offer_interview_when_uninitialized:\s*true/m.test(yaml)
-    && /block_current_task:\s*false/m.test(yaml);
-  return { status, interviewOptional };
-}
-
 export async function collectExplore() {
-  const [records, index, skills, rules, policyKeys, pomState] = await Promise.all([
-    collectRecords(), collectIndex(), collectSkills(), collectRules(), collectPolicyKeys(), collectPomState(),
+  const [records, index, skills, rules, policyKeys] = await Promise.all([
+    collectRecords(), collectIndex(), collectSkills(), collectRules(), collectPolicyKeys(),
   ]);
   const personal = records.filter((record) => ['OperatingPrinciple', 'OperatingPreference', 'OperatingLesson'].includes(record.type));
   const resources = records.filter((record) => !personal.includes(record));
@@ -149,15 +140,13 @@ export async function collectExplore() {
     },
     skills,
     policyKeys,
-    pomState,
     index: readOnly ? [] : index,
     resources: readOnly ? [] : resources,
     rules: readOnly ? [] : rules,
     personalOperatingModel: readOnly ? [] : personal,
     redactions: readOnly ? ['index', 'resources', 'rules', 'personalOperatingModel'] : [],
   };
-  await mkdir(join(appRoot, 'public', 'data'), { recursive: true });
-  await writeFile(join(appRoot, 'public', 'data', 'explore.json'), JSON.stringify(explore, null, 2) + '\n');
+  await atomicWriteJson(join(appRoot, 'public', 'data', 'explore.json'), explore);
   return explore;
 }
 

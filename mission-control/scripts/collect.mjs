@@ -1,9 +1,13 @@
-import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
-import { basename, dirname, extname, join, relative, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { basename, delimiter, dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { attachEvaluations, stableBookmarkId } from './ai-evaluation-contract.mjs';
+import { activeReportsRoot } from './airadar-store.mjs';
+import { atomicWriteJson } from './atomic-io.mjs';
+import { extractKnowledgeLinks, parseProjectRoots, redactSnapshot } from './security.mjs';
 
 const exec = promisify(execFile);
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -12,11 +16,16 @@ const seed = JSON.parse(await readFile(join(appRoot, 'config/seed.json'), 'utf8'
 const preferencesPath = join(appRoot, 'data', 'preferences.json');
 const observatoryRoot = resolve(process.env.OBSERVATORY_ROOT || join(appRoot, '..'));
 let preferences = await readJson(preferencesPath, { archivedProjects: {} });
+let preferenceWrites = Promise.resolve();
 
-const explicitRoots = (process.env.MC_PROJECT_ROOTS || '').split(':').filter(Boolean);
-// Public-safe default: never crawl conventional home-directory locations.
-// Local checkout discovery is opt-in through MC_PROJECT_ROOTS.
-const roots = [...new Set(explicitRoots.map((value) => resolve(value)))];
+const explicitRoots = parseProjectRoots(process.env.MC_PROJECT_ROOTS, delimiter);
+const roots = [...new Set([
+  ...explicitRoots,
+  join(homedir(), 'Projects'),
+  join(homedir(), 'Developer'),
+  join(homedir(), 'Documents', 'GitHub'),
+  join(homedir(), 'Documents', 'Codex'),
+].map((value) => resolve(value)))];
 
 async function exists(path) {
   try { await access(path); return true; } catch { return false; }
@@ -137,20 +146,28 @@ async function collectAtlas() {
     };
   }));
   const known = new Map(records.map((record) => [resolve(record.path), record.id]));
+  const byBasename = new Map();
+  for (const record of records) {
+    const names = [basename(record.path, '.md').toLowerCase(), record.label.toLowerCase()];
+    for (const name of names) byBasename.set(name, new Set([...(byBasename.get(name) || []), record.id]));
+  }
   const edges = [];
   const seen = new Set();
   for (const record of records) {
-    const linkPattern = /\[[^\]]+\]\(([^)]+\.md)(?:#[^)]+)?\)/g;
-    for (const match of record.markdown.matchAll(linkPattern)) {
+    for (const link of extractKnowledgeLinks(record.markdown)) {
       let linkedPath = '';
-      try { linkedPath = decodeURIComponent(match[1]); } catch { continue; }
-      const targetPath = resolve(dirname(record.path), linkedPath);
-      const target = known.get(targetPath);
+      try { linkedPath = decodeURIComponent(link.target); } catch { continue; }
+      const explicit = linkedPath.includes('/') || linkedPath.includes('\\') || linkedPath.endsWith('.md');
+      const normalizedTarget = linkedPath.replace(/\.md$/, '') + '.md';
+      const targetPath = resolve(dirname(record.path), normalizedTarget);
+      const vaultPath = resolve(observatoryRoot, normalizedTarget);
+      const candidates = [...(byBasename.get(basename(linkedPath, '.md').toLowerCase()) || [])];
+      const target = known.get(targetPath) || known.get(vaultPath) || (!explicit && candidates.length === 1 ? candidates[0] : null);
       if (!target || target === record.id) continue;
       const key = [record.id, target].sort().join('|');
       if (seen.has(key)) continue;
       seen.add(key);
-      edges.push({ source: record.id, target, kind: 'markdown-link' });
+      edges.push({ source: record.id, target, kind: link.kind });
     }
   }
   const degree = new Map(records.map((record) => [record.id, 0]));
@@ -202,7 +219,7 @@ async function projectSnapshot(project) {
     local: Boolean(localPath),
     localPath,
     git,
-    source: localPath ? 'local checkout' : 'synthetic seed snapshot',
+    source: localPath ? 'local checkout' : 'saved private snapshot',
     archived,
     archivedAt: typeof archivePreference === 'object' ? archivePreference.archivedAt : null,
     activityAt,
@@ -211,24 +228,18 @@ async function projectSnapshot(project) {
 }
 
 export async function setProjectArchived(projectId, archived) {
-  const projectConfig = config.find((project) => project.id === projectId);
-  if (!projectConfig) throw new Error('Unknown project');
-  const project = await projectSnapshot(projectConfig);
-  const now = new Date().toISOString();
-  preferences = {
-    ...preferences,
-    archivedProjects: {
-      ...(preferences.archivedProjects || {}),
-      [projectId]: {
-        archived: Boolean(archived),
-        archivedAt: archived ? now : null,
-        activityBaseline: project.activityAt || now,
-      },
-    },
-  };
-  await mkdir(dirname(preferencesPath), { recursive: true });
-  await writeFile(preferencesPath, JSON.stringify(preferences, null, 2) + '\n');
-  return collect();
+  const operation = preferenceWrites.then(async () => {
+    const projectConfig = config.find((project) => project.id === projectId);
+    if (!projectConfig) throw new Error('Unknown project');
+    preferences = await readJson(preferencesPath, { archivedProjects: {} });
+    const project = await projectSnapshot(projectConfig);
+    const now = new Date().toISOString();
+    preferences = { ...preferences, archivedProjects: { ...(preferences.archivedProjects || {}), [projectId]: { archived: Boolean(archived), archivedAt: archived ? now : null, activityBaseline: project.activityAt || now } } };
+    await atomicWriteJson(preferencesPath, preferences);
+    return collect();
+  });
+  preferenceWrites = operation.catch(() => {});
+  return operation;
 }
 
 export async function collect() {
@@ -238,7 +249,7 @@ export async function collect() {
   ]);
   const airadarProject = projects.find((item) => item.id === 'airadar');
   const localReports = airadarProject?.localPath ? join(airadarProject.localPath, 'reports') : null;
-  const syncedReports = join(appRoot, 'data', 'airadar');
+  const syncedReports = await activeReportsRoot(join(appRoot, 'data', 'airadar'));
   // An explicit GitHub artifact sync is the strongest freshness signal. Prefer
   // it over an arbitrarily discovered checkout, which may be on an older branch.
   const reports = await exists(join(syncedReports, 'daily.json'))
@@ -281,7 +292,7 @@ export async function collect() {
   // Filesystem paths help the collector find local repositories but are never
   // needed by the browser. Keep them out of both local and shared snapshots.
   const publicProjects = projects.map(({ localPath: _localPath, ...project }) => project);
-  const snapshot = {
+  const snapshot = redactSnapshot({
     generatedAt: new Date().toISOString(),
     mode: projects.some((project) => project.local) ? 'local-live' : 'snapshot',
     githubEnabled: process.env.MC_ENABLE_GITHUB === '1',
@@ -289,9 +300,8 @@ export async function collect() {
     projects: publicProjects,
     atlas,
     airadar,
-  };
-  await mkdir(join(appRoot, 'public', 'data'), { recursive: true });
-  await writeFile(join(appRoot, 'public', 'data', 'snapshot.json'), JSON.stringify(snapshot, null, 2) + '\n');
+  }, process.env.MC_READ_ONLY === '1');
+  await atomicWriteJson(join(appRoot, 'public', 'data', 'snapshot.json'), snapshot);
   return snapshot;
 }
 

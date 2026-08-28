@@ -54,3 +54,13 @@ def test_catalog_projects_temporal_and_relationship_metadata(tmp_path):
     assert node["valid_until"] == "2026-12-31"
     assert node["supersedes"] == ["old"]
     assert node["conflicts_with"] == ["alternative"]
+
+
+def test_catalog_builds_wikilink_and_embed_edges(tmp_path):
+    write_card(tmp_path, "concepts/a.md", title="A", body="See [[B]] and ![[concepts/folder/C]].")
+    write_card(tmp_path, "concepts/b.md", title="B")
+    write_card(tmp_path, "concepts/folder/c.md", title="C")
+    assert build(tmp_path)["edges"] == [
+        {"from": "concepts/a.md", "to": "concepts/b.md"},
+        {"from": "concepts/a.md", "to": "concepts/folder/c.md"},
+    ]

@@ -3,6 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$UvVersion = "0.12.7"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Candidates = [System.Collections.Generic.List[string]]::new()
 
@@ -55,7 +56,14 @@ if (Test-Path (Join-Path $RepoRoot ".venv")) {
     & $Selected.Command -m venv (Join-Path $RepoRoot ".venv")
 }
 
-& $VenvPython -m pip install -e "${RepoRoot}[dev]"
+& $VenvPython -m pip install --disable-pip-version-check "uv==$UvVersion"
+$PreviousUvEnvironment = $env:UV_PROJECT_ENVIRONMENT
+try {
+    $env:UV_PROJECT_ENVIRONMENT = (Join-Path $RepoRoot ".venv")
+    & $VenvPython -m uv sync --locked --extra dev --python $VenvPython
+} finally {
+    $env:UV_PROJECT_ENVIRONMENT = $PreviousUvEnvironment
+}
 & (Join-Path $RepoRoot ".venv/Scripts/observatory.exe") --help | Out-Null
 & (Join-Path $RepoRoot ".venv/Scripts/observatory.exe") validate --root $RepoRoot
 Write-Output "install=complete"

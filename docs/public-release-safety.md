@@ -43,6 +43,8 @@ For a repository intended to be publicly cloneable but not directly editable by 
 8. Do not expose repository or environment secrets to pull-request workflows from untrusted forks.
 9. Prefer owner-only merges. Public users may fork/clone and propose pull requests, but proposal authority is not write authority.
 10. Enable secret scanning/dependency alerts where the account/repository supports them.
+11. Enable private vulnerability reporting and document the Security-tab route without publishing a personal email address.
+12. Pin every GitHub Action to a full commit SHA and require locked dependency installation.
 
 A public repository cannot prevent other people from creating their own forks or proposing changes, but they cannot modify the canonical repository without an explicitly granted write path or an accepted merge.
 

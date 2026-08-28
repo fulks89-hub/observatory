@@ -13,7 +13,7 @@ description: Safely edit the canonical Observatory OKF Markdown corpus.
 6. Use relative ordinary Markdown links with meaningful surrounding prose.
 7. Represent uncertainty in prose and provenance. `human-reviewed` may only record an explicit human review event.
 8. For POM edits, also read `skills/personal-operating-model/SKILL.md`. Project-specific decisions stay with the Project unless they support a genuinely transferable reviewed lesson or principle.
-9. Run `observatory validate`, the complete repository tests, `observatory catalog` to a disposable output, and `observatory preserve <base-ref>` against the intended PR base. Inspect the diff before proposing review.
+9. Run `.venv/bin/observatory validate`, the complete repository tests, `.venv/bin/observatory catalog` to a disposable output, and `.venv/bin/observatory preserve <base-ref>` against the intended PR base. Inspect the diff before proposing review.
 10. Treat the validation state as tied to the exact branch head. Any subsequent edit makes the previous green result stale and requires the checks to run again before merge readiness is claimed.
 11. Use a reviewable branch/PR for autonomous work. If the current environment cannot execute the required checks, do not claim validation or merge readiness. A draft PR may be used only to trigger CI when necessary and remains blocked until the checks pass.
 

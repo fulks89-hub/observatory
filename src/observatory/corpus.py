@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 import re
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -22,6 +24,7 @@ CANONICAL_DIRS = (
 )
 FRONTMATTER = re.compile(r"\A---\s*\n(.*?)\n---\s*(?:\n|\Z)", re.DOTALL)
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+WIKILINK = re.compile(r"!?\[\[([^\]]+)\]\]")
 
 type Frontmatter = dict[str, Any]
 
@@ -41,9 +44,40 @@ class Document:
 
 def paths(root: Path) -> list[Path]:
     """Return canonical Markdown paths in deterministic order."""
-    return sorted(
-        path for directory in CANONICAL_DIRS for path in (root / directory).glob("**/*.md")
-    )
+    discovered: list[Path] = []
+    for directory in CANONICAL_DIRS:
+        start = root / directory
+        if start.is_symlink():
+            raise CorpusError(f"{directory}: symbolic-link corpus directories are not allowed")
+        if not start.exists():
+            continue
+        for current, directories, files in os.walk(start, followlinks=False):
+            current_path = Path(current)
+            for name in list(directories):
+                child = current_path / name
+                if child.is_symlink():
+                    relative = child.relative_to(root).as_posix()
+                    raise CorpusError(f"{relative}: symbolic-link directories are not allowed")
+            for name in files:
+                child = current_path / name
+                mode = child.lstat().st_mode
+                if stat.S_ISLNK(mode):
+                    relative = child.relative_to(root).as_posix()
+                    raise CorpusError(f"{relative}: symbolic-link corpus entries are not allowed")
+                if not name.endswith(".md"):
+                    continue
+                if not stat.S_ISREG(mode):
+                    raise CorpusError(
+                        f"{child.relative_to(root).as_posix()}: Markdown must be a regular file"
+                    )
+                try:
+                    child.resolve(strict=True).relative_to(root.resolve(strict=True))
+                except (OSError, ValueError) as error:
+                    raise CorpusError(
+                        f"{child.relative_to(root).as_posix()}: path escapes the corpus root"
+                    ) from error
+                discovered.append(child)
+    return sorted(discovered)
 
 
 def stringify_keys(value: Any) -> Any:
@@ -84,26 +118,115 @@ def parse_document(text: str, *, path: Path, root: Path) -> Document:
 
 
 def read(path: Path, *, root: Path) -> Document:
-    return parse_document(path.read_text(encoding="utf-8"), path=path, root=root)
+    from observatory.safe_files import UnsafePathError, read_regular
+
+    try:
+        text = read_regular(path, boundary=root).decode("utf-8")
+    except (UnsafePathError, UnicodeDecodeError) as error:
+        raise CorpusError(str(error)) from error
+    return parse_document(text, path=path, root=root)
 
 
-def internal_targets(document: Document, *, root: Path) -> list[str]:
-    targets: set[str] = set()
-    resolved_root = root.resolve()
-    for target in MARKDOWN_LINK.findall(document.text):
-        if re.match(r"\A(?:https?:|mailto:|#)", target, re.IGNORECASE):
+@dataclass(frozen=True, slots=True)
+class LinkResolution:
+    targets: tuple[str, ...]
+    broken: tuple[str, ...]
+    ambiguous: tuple[str, ...]
+    escaped: tuple[str, ...]
+
+
+def _linkable_markdown(body: str) -> str:
+    """Remove Markdown regions whose link-shaped text is literal, not navigational."""
+    without_comments = re.sub(r"<!--.*?-->", "", body, flags=re.DOTALL)
+    visible: list[str] = []
+    fence: tuple[str, int] | None = None
+    for line in without_comments.splitlines(keepends=True):
+        marker = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
+        if marker is not None:
+            run = marker.group(1)
+            kind = run[0]
+            if fence is None:
+                fence = (kind, len(run))
+            elif fence[0] == kind and len(run) >= fence[1]:
+                fence = None
+            visible.append("\n" if line.endswith("\n") else "")
             continue
-        clean = target.split("#", 1)[0]
+        if fence is None:
+            visible.append(line)
+        else:
+            visible.append("\n" if line.endswith("\n") else "")
+    text = "".join(visible)
+    return re.sub(r"(`+)(?:(?!\1)[\s\S])*?\1", "", text)
+
+
+def _raw_links(body: str) -> list[tuple[str, bool]]:
+    text = _linkable_markdown(body)
+    links = [(target, False) for target in MARKDOWN_LINK.findall(text)]
+    for value in WIKILINK.findall(text):
+        links.append((value.split("|", 1)[0], True))
+    return links
+
+
+def resolve_links(document: Document, *, root: Path, known_paths: set[str]) -> LinkResolution:
+    targets: set[str] = set()
+    broken: set[str] = set()
+    ambiguous: set[str] = set()
+    escaped: set[str] = set()
+    resolved_root = root.resolve()
+    by_stem: dict[str, list[str]] = {}
+    by_path: dict[str, list[str]] = {}
+    for known in known_paths:
+        key = Path(known).stem.casefold()
+        by_stem.setdefault(key, []).append(known)
+        by_path.setdefault(known.casefold(), []).append(known)
+    for raw, wiki in _raw_links(document.body):
+        if not wiki and re.match(r"\A(?:https?:|mailto:|#)", raw, re.IGNORECASE):
+            continue
+        clean = raw.split("#", 1)[0].split("^", 1)[0].strip()
         if not clean:
             continue
-        candidate = (
-            resolved_root / clean.removeprefix("/")
-            if clean.startswith("/")
-            else document.path.parent / clean
-        )
-        try:
-            relative = candidate.resolve().relative_to(resolved_root)
-        except ValueError:
+        if wiki and "/" not in clean and "\\" not in clean:
+            matches = by_stem.get(Path(clean).stem.casefold(), [])
+            if len(matches) == 1:
+                targets.add(matches[0])
+            elif len(matches) > 1:
+                ambiguous.add(raw)
+            else:
+                broken.add(raw)
             continue
-        targets.add(relative.as_posix())
-    return sorted(targets)
+        normalized = clean.replace("\\", "/")
+        if wiki and not normalized.lower().endswith(".md"):
+            normalized += ".md"
+        if normalized.startswith("/") or (wiki and not normalized.startswith(("./", "../"))):
+            candidate = resolved_root / normalized.removeprefix("/")
+        else:
+            candidate = document.path.parent / normalized
+        try:
+            relative = candidate.resolve(strict=False).relative_to(resolved_root).as_posix()
+        except ValueError:
+            escaped.add(raw)
+            continue
+        matches = by_path.get(relative.casefold(), [])
+        if len(matches) == 1:
+            targets.add(matches[0])
+        elif len(matches) > 1:
+            ambiguous.add(raw)
+        elif not wiki and candidate.exists() and not candidate.is_symlink():
+            # Repository-operational documents may be linked from canonical cards,
+            # but only canonical Markdown becomes a catalog relationship edge.
+            continue
+        else:
+            broken.add(raw)
+    return LinkResolution(
+        tuple(sorted(targets)),
+        tuple(sorted(broken)),
+        tuple(sorted(ambiguous)),
+        tuple(sorted(escaped)),
+    )
+
+
+def internal_targets(
+    document: Document, *, root: Path, known_paths: set[str] | None = None
+) -> list[str]:
+    known = known_paths or {path.relative_to(root).as_posix() for path in paths(root)}
+    return list(resolve_links(document, root=root, known_paths=known).targets)
