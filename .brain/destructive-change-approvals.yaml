@@ -1,9 +1,17 @@
-version: 1
+version: 2
 approvals: []
 
-# Human-approved destructive corpus changes may be listed as mappings with:
-# - path: concepts/example.md
-#   base_commit: full Git object ID used by the preservation check
-#   kinds: [delete, frontmatter, sources, verification, footnotes, headings, body_reduction]
+# Generate an exact request with `observatory preserve-request BASE_REF`. Approval
+# must be merged separately into the trusted base before the destructive branch.
+# - id: deterministic request id emitted by preserve-request; edits invalidate it
+#   before_path: concepts/example.md
+#   after_path: concepts/example.md  # null for deletion
+#   before_sha256: exact pre-change content hash
+#   after_sha256: exact post-change content hash  # null for deletion
+#   kinds: [body_rewrite]
 #   approved_by: human:<identifier>
+#   approved_at: timezone-aware ISO-8601 datetime no later than the trusted-base commit
 #   reason: Why removing this durable knowledge is intentional
+# The completed approval must land in the base branch in a separate commit before
+# the destructive branch is rebased onto that trusted base. Branch-local approvals
+# and placeholder reviewer values never authorize a change.

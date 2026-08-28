@@ -127,6 +127,17 @@ def test_compound_tokenization_preserves_exact_and_component_terms():
     ]
 
 
+def test_wikilink_labels_remain_searchable(tmp_path):
+    write_card(
+        tmp_path,
+        "concepts/source.md",
+        title="Source",
+        body="# TL;DR\n\nConnected to [[Rare Observatory Topic]].\n",
+    )
+    result = SparseIndex.from_root(tmp_path).search("rare observatory topic")
+    assert result[0].relative_path == "concepts/source.md"
+
+
 def test_stale_results_are_flagged_and_can_be_excluded(tmp_path):
     build_corpus(tmp_path)
     index = SparseIndex.from_root(tmp_path)

@@ -1,0 +1,142 @@
+{
+  "artifacts": {
+    "docs/media/observatory-overview-readme.gif": {
+      "bytes": 5234224,
+      "sha256": "e7197186d505aa72ac82bfaa2538cd7a2a1137b57bb5124deeae33a21fc714f9"
+    },
+    "docs/media/observatory-overview-script.txt": {
+      "bytes": 1041,
+      "sha256": "701e579bd94faf3198d6ad1799e53e05f3ff7754c7873a41ee32b479cf1db096"
+    },
+    "docs/media/observatory-overview.mp4": {
+      "bytes": 2683725,
+      "sha256": "1c07507b4ad85c3340d6a3e44758254d0b9f74d65f50c4c1efd27f683bab3227"
+    },
+    "docs/media/observatory-overview.vtt": {
+      "bytes": 1169,
+      "sha256": "07e0756c01f5ffef0cceca35c872a1468f0aa735b748fdcf068d411ebdfef007"
+    }
+  },
+  "build_receipt_review_token": "156b121c8701edf64efccc92d4d53e58261f10999a16b260a1b77159afda1c14",
+  "media_probe": {
+    "format": {
+      "duration": "65.366667",
+      "tags": {
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf63.1.101",
+        "major_brand": "isom",
+        "minor_version": "512",
+        "title": "Observatory product walkthrough"
+      }
+    },
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "height": 720,
+        "index": 0,
+        "tags": {
+          "encoder": "Lavc63.1.101 libx264",
+          "handler_name": "VideoHandler",
+          "language": "und"
+        },
+        "width": 1280
+      },
+      {
+        "channels": 1,
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "index": 1,
+        "tags": {
+          "handler_name": "SoundHandler",
+          "language": "und"
+        }
+      },
+      {
+        "codec_name": "mov_text",
+        "codec_type": "subtitle",
+        "index": 2,
+        "tags": {
+          "handler_name": "SubtitleHandler",
+          "language": "und"
+        }
+      }
+    ]
+  },
+  "narration": {
+    "audio": {
+      "bytes": 2990124,
+      "sha256": "3288790878e63497beede833ea10087b3ffe6c718160e300a2b6cfe4272dd10d"
+    },
+    "engine": "kokoro-onnx",
+    "generator_sha256": "c3fb1231b0bedeb98418dcc41f76ad32f768c5f8a68ad688778c0f5e24f2b37a",
+    "model": {
+      "bytes": 92361271,
+      "sha256": "6e742170d309016e5891a994e1ce1559c702a2ccd0075e67ef7157974f6406cb"
+    },
+    "requirements_sha256": "8110c94b4b5cd612cba196f23a0746833260cbe0218028ebcba51a11f703d4ea",
+    "version": "0.4.9",
+    "voice": "af_heart",
+    "voices": {
+      "bytes": 28214398,
+      "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+    }
+  },
+  "privacy_review": {
+    "denylist_scan_required": true,
+    "frame_review_required": true,
+    "synthetic_seed_required": true
+  },
+  "release_commit": null,
+  "schema_version": 1,
+  "source_files": {
+    "mission-control/.gitignore": "a5ea85407e70907ed40363c698da333432c639d85caa84bd84140d6fc2f93b04",
+    "mission-control/README.md": "37c82c2c3a1823bd1568ce7390e7cfb6914d3ce70f56083675a23dcaf9819048",
+    "mission-control/config/ai-evaluation.schema.json": "40241bb226fc8ad8747ab4534efd79cbb33404c4cac6810b9a7d266372b90605",
+    "mission-control/config/ngrok-policy.example.yml": "a195216f8e347abc156b3c6cf6ddc8972c1c3bbb415aa49b6cfa7ed6f01c2c53",
+    "mission-control/config/projects.json": "3c9446c80193f18584e89bd626232478ce4e10c8263f21f4322b9f4f3b90aaee",
+    "mission-control/config/seed.json": "a25bf6ba62a283baa3e2010673e4e642395d70305d5738000dfffed5e1046c83",
+    "mission-control/index.html": "e37489b8a84b7495398672304e86a3b22c16fe32bd82effa938a3ed8ea85df63",
+    "mission-control/package-lock.json": "83e9a69d09de5467ef0581ee7ec6b50cbc9658fbc8d85b2f89548abf7b4a595e",
+    "mission-control/package.json": "49f6b2816ed3b4eb90a56efb45c079b0ed462f9146851a2b88b8397c161cc749",
+    "mission-control/public/assets/observatory-cosmic-field.png": "f0b1b24ee146be37696793b4364e718db38170e4ddb4d89e648ccb998a09775c",
+    "mission-control/public/explore.html": "4039db12aee88a48fdcf5770630f8bad1c0946959cd8c96bc3b9d60417acf88d",
+    "mission-control/scripts/ai-evaluation-contract.mjs": "a39e1fc451fce4551b945c9ab58d563517f80976fdbe784dc52e0b509657845e",
+    "mission-control/scripts/airadar-store.mjs": "63a8124e72693dd5247313653252e5c21830343df46164c45f20d9d96a9e01a5",
+    "mission-control/scripts/atomic-io.mjs": "6b036c50fe14326903951f52ff6214cd10ae057d5a79d4e31a61d1cf2d83b45d",
+    "mission-control/scripts/collect-explore.mjs": "2f3a723f40b336ad73d5916332f5b96cabdfdb950b144720f6a4a6254bb19259",
+    "mission-control/scripts/collect.mjs": "9b5c743a6c8bd49ab9f08ec033522c81a3f78d6b28be52f61d5dcdb112959ea2",
+    "mission-control/scripts/security.mjs": "113d05076e2bdeb74fec942a56efb24a578c9af444e8da69dd93af9466c3a008",
+    "mission-control/scripts/start-share.mjs": "3e018c027fcd92d300cce13c2111910d0061f2f6e0279c186202cbf69c807721",
+    "mission-control/scripts/sync-airadar.mjs": "2394855588ef16a36004a1e11bb9d34861e1f49f5f8bcffebf37f8c159aa195f",
+    "mission-control/server.mjs": "c39a466ede76f3145ee550d4f0bce1cd805b8da686d4bd38ed74ee9c28dae344",
+    "mission-control/src/main.jsx": "408a028cad20785205909fcc25914a44acba39218ae08f962387db0352feaeba",
+    "mission-control/src/safe-url.js": "05cd910b18bcfbe1188892eff1d31479a014a1c338781bdea3c2e00e8da18aaf",
+    "mission-control/src/styles.css": "e54e0d640dad1d47f39d42e00a1eea3dc44e519a88d9e0617044960e9c965a99",
+    "mission-control/tests/ai-evaluation-contract.test.mjs": "92b2b5efb558ffbd5ced745ea2d9d3abc31641598014e2b3ed9da17323eb2b8c",
+    "mission-control/tests/hardening.test.mjs": "5e1fa12225677bf9875cfbb8b2d7a9cba50cadea5367a2ecd5b08cb2909945ae",
+    "mission-control/vite.config.js": "24c0df2954d9723081d41744f9a4b4c2cc46f671223feb6e5f07b72e8a2a0c69",
+    "scripts/demo/README.md": "ac1422c57b414e66466def03da1b08a1ab95681cd2f670405eb2e20e553b0aea",
+    "scripts/demo/build-walkthrough.py": "3e91ed52aacf46d7d2fff11b18b48c63b51f94952376707199f4eb5b6070fb77",
+    "scripts/demo/generate-kokoro-narration.py": "c3fb1231b0bedeb98418dcc41f76ad32f768c5f8a68ad688778c0f5e24f2b37a",
+    "scripts/demo/package-lock.json": "f114c692f0fcfcc8235f469a5ae93550ead69e5c87600890539e3f3df4a7ff2b",
+    "scripts/demo/package.json": "ebe013b575f2aadafb6fa26044b6a698b4512a118baf1c6a469ffe6c6e67dd41",
+    "scripts/demo/record-walkthrough.mjs": "8e8129269ff55eee27efee729f625c2b0b5f1b419e4a8ae5a1218d5d2912de31",
+    "scripts/demo/requirements-kokoro.in": "6b047468c87cc0790ec6a4cc55a0fe805d960a01c0c47f758343bef70734ae8c",
+    "scripts/demo/requirements-kokoro.txt": "8110c94b4b5cd612cba196f23a0746833260cbe0218028ebcba51a11f703d4ea",
+    "scripts/demo/scenes.json": "95371416c04bbd4bc46888e12fa94d56708af3f47772d30542d6d7ca3b77426b",
+    "scripts/demo/verify-walkthrough.py": "e53ccf0899d4e61e635d3416a2de91ff154c0a591050efb26c6ef0e004817626",
+    "scripts/demo/walkthrough_contract.py": "35693fdd20722b973a8dceb01323b1cf24c89a1a3cf77450c532b6b1bdfe98aa"
+  },
+  "source_input_tree_sha256": "066476b207a932ef35d30024613035a0cebe9e6710036fea733f50d5c5c5219c",
+  "status": "verified-local-synthetic-walkthrough",
+  "tools": {
+    "ffmpeg": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "ffprobe": "ffprobe version 9.0.1 Copyright (c) 2007-2026 the FFmpeg developers",
+    "node": "v26.7.0",
+    "npm": "11.19.0",
+    "python": "Python 3.12.11"
+  }
+}

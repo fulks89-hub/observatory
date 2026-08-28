@@ -11,7 +11,7 @@
 - walkthrough: Overview → Atlas interaction → Explore → skill search → uninitialized Personal Operating Model → closing message;
 - sidecars: `observatory-overview-script.txt` and `observatory-overview.vtt`;
 - README preview: `observatory-overview-readme.gif` at 640×360;
-- source revision: the fresh-history public release containing these assets; verify the exact commit with `git rev-parse HEAD`.
+- provenance: `observatory-overview-manifest.json` records artifact hashes and a deterministic digest of the exact source-input tree. The private release log records the later public merge commit so the manifest does not create a self-referential commit hash.
 
 The release audit records the final SHA-256 hashes and exact public commit. Recompute locally with:
 
@@ -24,41 +24,24 @@ shasum -a 256 docs/media/observatory-overview.mp4 \
 
 ## Reproduce
 
-Start the sanitized dashboard without `MC_PROJECT_ROOTS` so it uses only synthetic seed data:
+The repository does not distribute Kokoro model or voice-pack files. Pass their local paths to the end-to-end builder:
 
 ```sh
-cd mission-control
-npm ci
-npm run check
-npm test
-npm run dev -- --port 4173
+.venv/bin/python scripts/demo/build-walkthrough.py \
+  --model /path/to/kokoro-v1.0.int8.onnx \
+  --voices /path/to/voices-v1.0.bin
 ```
 
-In another shell:
+After watching the derived MP4 with audio and inspecting the review frames, publish that unchanged output:
 
 ```sh
-cd scripts/demo
-npm ci
-npx playwright install chromium
-npm run record
-```
-
-The deterministic raw capture is written to
-`.derived/demo-output/observatory-walkthrough-raw.webm`. Generate narration from
-`docs/media/observatory-overview-script.txt` with local Kokoro and the
-`af_heart` voice, then package it with FFmpeg as H.264/AAC at 1280×720. The
-repository does not distribute Kokoro model or voice-pack files; pass their
-local paths to the reproducible helper:
-
-```sh
-python scripts/demo/generate-kokoro-narration.py \
+.venv/bin/python scripts/demo/build-walkthrough.py \
   --model /path/to/kokoro-v1.0.int8.onnx \
   --voices /path/to/voices-v1.0.bin \
-  --output .derived/demo-output/observatory-kokoro-af-heart.wav
+  --denylist /private/path/public-release-denylist.txt \
+  --publish-reviewed
 ```
 
-Preserve `docs/media/observatory-overview.vtt` as both an embedded caption
-stream and a sidecar. Retain the applicable Kokoro model and runtime license
-notices when redistributing those components.
+The builder refuses private dashboard environment variables and non-synthetic seed connections, installs hash-locked Kokoro dependencies, uses `npm ci`, captures the actual UI, packages H.264/AAC with embedded captions, creates the GIF, checks media streams and long silence, extracts review frames, and writes the provenance manifest. Preserve the WebVTT sidecar and retain the applicable Kokoro model/runtime license notices when redistributing those components.
 
-Before replacing public media, review the full video with audio enabled, inspect beginning/middle/POM/ending frames, run `ffprobe` to confirm streams and dimensions, run the repository privacy audit, and update the recorded hashes and exact source commit.
+Before replacing public media, review the full video with audio enabled, inspect the generated beginning/middle/POM/ending frames, run the repository privacy audit and Gitleaks, and confirm the manifest with `.venv/bin/python scripts/demo/verify-walkthrough.py`. The builder cannot automate the human visual/privacy review.

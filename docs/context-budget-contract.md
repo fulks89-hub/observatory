@@ -15,7 +15,7 @@ Retrieval is not universally superior either. A 2024 comparison found that suffi
 For ordinary tasks:
 
 1. Form a short task-specific query from the current request.
-2. Run `observatory search --json --limit 5 "<task terms>"`.
+2. Run `.venv/bin/observatory search --json --limit 5 "<task terms>"`.
 3. Inspect result metadata: title, type, description, project, provenance, freshness, applicability, conflicts, and canonical path.
 4. Open only the strongest applicable card or project map first.
 5. Expand to another card, a relevant dossier section, a primary source, or linked neighbors only when the current evidence is insufficient.

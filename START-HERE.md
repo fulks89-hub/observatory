@@ -1,6 +1,6 @@
 # Start Here
 
-This guide takes a new owner from read-only access to an independent, private Observatory in about fifteen minutes. Your copy is yours: you will not be working in or changing the upstream repository.
+This guide gets the technical clone and bootstrap of an independent, private Observatory started in about fifteen minutes. The optional guided interview and migration continue at the owner's pace; a careful migration is not a fifteen-minute promise. Your copy is yours: you will not be working in or changing the upstream repository.
 
 ## 1. Prerequisites
 
@@ -35,7 +35,10 @@ project's temporary work directory.
 ## 2. Clone the template and make an independent repository
 
 ```sh
-git clone https://github.com/OWNER/observatory.git observatory
+# Replace OWNER with the account or organization publishing your chosen copy.
+OBSERVATORY_TEMPLATE_OWNER=OWNER
+test "$OBSERVATORY_TEMPLATE_OWNER" != OWNER || { echo "Replace OWNER before cloning." >&2; exit 2; }
+git clone "https://github.com/${OBSERVATORY_TEMPLATE_OWNER}/observatory.git" observatory
 cd observatory
 git remote rename origin template
 ```
@@ -63,6 +66,8 @@ The skill first gives a high-level overview of Observatory, explains what onboar
 
 For every approved existing file that could change, onboarding first creates a private byte-for-byte preservation snapshot outside the repository, records a manifest, and verifies source and backup SHA-256 values. If the snapshot cannot be verified, that file is not changed. Restoring the manifested files is a separate explicitly approved action.
 
+The agent uses the checked-in CLI rather than improvising this contract: `snapshot create --destination <new-private-directory> --source <absolute-file>`, `snapshot verify <directory> --compare-sources`, then the two-phase `snapshot restore <directory>` plan/token flow if restoration is later approved. These are subcommands of `.venv/bin/observatory` (or `.venv\Scripts\observatory.exe` on Windows).
+
 ## 4. Install and verify Observatory
 
 ```sh
@@ -80,8 +85,7 @@ Keep `.venv/` and `.derived/` local; they are replaceable and ignored by Git.
 If your Python distributor reports an `externally-managed-environment` while creating the virtual environment, use a standard Python.org/Homebrew installation or the `uv` fallback:
 
 ```sh
-uv venv --python 3.12 .venv
-uv pip install --python .venv/bin/python -e '.[dev]'
+UV_PROJECT_ENVIRONMENT=.venv uv sync --locked --extra dev --python 3.12
 ```
 
 If you use the `uv` fallback, the `PYTHON312` shell variable is unnecessary.
@@ -108,7 +112,7 @@ git push
 
 ### Optional: open the repository in Obsidian
 
-In Obsidian, choose **Open folder as vault** and select the repository root. No community plugin is required. Standard Markdown links feed Obsidian's backlinks and graph, while YAML frontmatter remains visible as note properties.
+In Obsidian, choose **Open folder as vault** and select the repository root. No community plugin is required. Observatory recognizes both standard Markdown links and Obsidian `[[wikilinks]]`; standard Markdown links are recommended when you want the same relationships to work on GitHub and in other Markdown tools. YAML frontmatter remains visible as note properties.
 
 The local `.obsidian/` workspace and plugin directory is ignored by default. This keeps device-specific layout, plugin state, and preferences out of Git while leaving all canonical Observatory Markdown available. The Observatory CLI and Mission Control do not depend on Obsidian and continue to work normally.
 
@@ -116,7 +120,7 @@ The local `.obsidian/` workspace and plugin directory is ignored by default. Thi
 
 ```sh
 cd mission-control
-npm install
+npm ci
 npm start
 ```
 
@@ -139,7 +143,7 @@ Radar's **Move to Atlas** action writes a review candidate only under `staging/a
 - Search before creating a duplicate: `.venv/bin/observatory search --json "your topic"`.
 - Review files under `staging/` before promoting them.
 - Link project, concept, research, source, idea, and question cards with ordinary Markdown links.
-- Before merging changes, run `observatory validate`, `pytest`, and `observatory catalog`.
+- Before merging changes, run `.venv/bin/observatory validate`, `.venv/bin/python -m pytest`, and `.venv/bin/observatory catalog` (use the corresponding `.venv\Scripts\` executables on Windows).
 - Push regularly to your private `origin` as a backup.
 
 ## Updating from the upstream repository

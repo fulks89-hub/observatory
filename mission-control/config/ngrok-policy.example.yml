@@ -1,0 +1,13 @@
+# Copy this file to config/ngrok-policy.local.yml and replace every example
+# address before starting ngrok. As written, this policy allows no real user.
+on_http_request:
+  - actions:
+      - type: oauth
+        config:
+          provider: google
+  - expressions:
+      - "!(actions.ngrok.oauth.identity.email in ['viewer-one@example.invalid', 'viewer-two@example.invalid'])"
+    actions:
+      - type: deny
+        config:
+          status_code: 403

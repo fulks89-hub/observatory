@@ -7,13 +7,23 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
 
 import yaml
 
-from observatory import agent_evaluation, catalog, coordination, preservation, validation
+from observatory import (
+    agent_evaluation,
+    catalog,
+    coordination,
+    corpus,
+    preservation,
+    privacy,
+    snapshot,
+    validation,
+)
 from observatory.retrieval import STRATEGY, SparseIndex
 
 
@@ -47,6 +57,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     validate = subparsers.add_parser("validate", help="Validate OKF and likely secrets")
     validate.add_argument("--root", type=_root, default=Path.cwd())
+    validate.add_argument("--history", action="store_true")
+    validate.add_argument("--strict-privacy", action="store_true")
 
     catalog_parser = subparsers.add_parser("catalog", help="Build a disposable catalog")
     catalog_parser.add_argument("--root", type=_root, default=Path.cwd())
@@ -59,6 +71,31 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.getenv("OBSERVATORY_BASE_REF") or os.getenv("BRAIN_BASE_REF"),
     )
     preserve.add_argument("--root", type=_root, default=Path.cwd())
+
+    preserve_request = subparsers.add_parser(
+        "preserve-request", help="Generate an exact destructive-change approval request"
+    )
+    preserve_request.add_argument("base_ref")
+    preserve_request.add_argument("--root", type=_root, default=Path.cwd())
+    preserve_request.add_argument("--output", type=Path)
+
+    snapshot_parser = subparsers.add_parser("snapshot", help="Create, verify, or restore snapshots")
+    snapshot_commands = snapshot_parser.add_subparsers(dest="snapshot_command", required=True)
+    snapshot_create = snapshot_commands.add_parser("create")
+    snapshot_create.add_argument("--destination", required=True, type=Path)
+    snapshot_create.add_argument("--source", required=True, action="append", type=Path)
+    snapshot_verify = snapshot_commands.add_parser("verify")
+    snapshot_verify.add_argument("snapshot", type=Path)
+    snapshot_verify.add_argument("--compare-sources", action="store_true")
+    snapshot_restore = snapshot_commands.add_parser("restore")
+    snapshot_restore.add_argument("snapshot", type=Path)
+    snapshot_restore.add_argument("--confirm-restore")
+
+    privacy_scan = subparsers.add_parser("privacy-scan", help="Scan current files and Git history")
+    privacy_scan.add_argument("--root", type=_root, default=Path.cwd())
+    privacy_scan.add_argument("--history", action="store_true")
+    privacy_scan.add_argument("--strict-privacy", action="store_true")
+    privacy_scan.add_argument("--json", action="store_true")
 
     evaluate = subparsers.add_parser("evaluate-agent", help="Score a recorded agent run")
     evaluate.add_argument("trace", type=Path)
@@ -120,14 +157,16 @@ def _search(arguments: argparse.Namespace) -> int:
 
 
 def _validate(arguments: argparse.Namespace) -> int:
-    result = validation.validate(arguments.root)
+    result = validation.validate(
+        arguments.root, history=arguments.history, strict_privacy=arguments.strict_privacy
+    )
     for warning in result.warnings:
         print(f"Warning: {warning}", file=sys.stderr)
     if result.ok:
         print(
             f"OK: validated {result.document_count} durable Markdown files and scanned "
             f"{result.tracked_count} tracked files for likely secrets "
-            f"({len(result.warnings)} warning(s))"
+            f"({len(result.warnings)} warning(s), {result.scanned_count} content object(s) scanned)"
         )
         return 0
     print(f"Validation failed with {len(result.errors)} error(s):", file=sys.stderr)
@@ -142,7 +181,17 @@ def _catalog(arguments: argparse.Namespace) -> int:
         print(rendered, end="")
     else:
         arguments.output.parent.mkdir(parents=True, exist_ok=True)
-        arguments.output.write_text(rendered, encoding="utf-8")
+        descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{arguments.output.name}.", dir=arguments.output.parent
+        )
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                stream.write(rendered)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary_name, arguments.output)
+        finally:
+            Path(temporary_name).unlink(missing_ok=True)
     return 0
 
 
@@ -171,6 +220,74 @@ def _preserve(arguments: argparse.Namespace) -> int:
         file=sys.stderr,
     )
     return 1
+
+
+def _preserve_request(arguments: argparse.Namespace) -> int:
+    rendered = yaml.safe_dump(
+        preservation.approval_request(arguments.root, arguments.base_ref), sort_keys=False
+    )
+    if arguments.output is None:
+        print(rendered, end="")
+    else:
+        arguments.output.write_text(rendered, encoding="utf-8")
+    return 0
+
+
+def _snapshot(arguments: argparse.Namespace) -> int:
+    if arguments.snapshot_command == "create":
+        result = snapshot.create(arguments.destination, arguments.source)
+        print(
+            f"OK: created and independently verified {result.file_count} file(s) at "
+            f"{result.root} (manifest {result.manifest_sha256})"
+        )
+        return 0
+    if arguments.snapshot_command == "verify":
+        result = snapshot.verify(arguments.snapshot, compare_sources=arguments.compare_sources)
+        print(
+            f"OK: verified {result.file_count} snapshot file(s) (manifest {result.manifest_sha256})"
+        )
+        return 0
+    if not arguments.confirm_restore:
+        plan = snapshot.restore_plan(arguments.snapshot)
+        print(f"Restore plan covers {len(plan.files)} file(s).")
+        for item in plan.files:
+            current = item["current"]["sha256"] or "<missing>"
+            print(f"- {item['source_path']}: current {current}; restore {item['restore_sha256']}")
+        print(f"Re-run with --confirm-restore {plan.token}")
+        return 0
+    result = snapshot.restore(arguments.snapshot, confirmation=arguments.confirm_restore)
+    print(f"OK: restored and verified {result.file_count} file(s)")
+    return 0
+
+
+def _privacy_scan(arguments: argparse.Namespace) -> int:
+    scans = [
+        privacy.scan_current(arguments.root, list(validation.git_tracked_files(arguments.root)))
+    ]
+    if arguments.history:
+        scans.append(privacy.scan_history(arguments.root))
+    findings = [finding for scan in scans for finding in scan.findings]
+    skipped = [item for scan in scans for item in scan.skipped]
+    payload = {
+        "scope": "current-and-locally-reachable-history" if arguments.history else "current",
+        "scanned_count": sum(scan.scanned_count for scan in scans),
+        "skipped": skipped,
+        "findings": [
+            {"location": item.location, "kind": item.kind, "secret": item.secret}
+            for item in findings
+        ],
+    }
+    if arguments.json:
+        print(json.dumps(payload, indent=2))
+    else:
+        for item in findings:
+            label = "ERROR" if item.secret or arguments.strict_privacy else "WARNING"
+            print(f"{label}: {item.location}: {item.kind}")
+        for skipped_item in skipped:
+            print(f"ERROR: scan incomplete: {skipped_item}")
+        print(f"Scanned {payload['scanned_count']} content object(s).")
+    failed = bool(skipped) or any(item.secret or arguments.strict_privacy for item in findings)
+    return 1 if failed else 0
 
 
 def _evaluate_agent(arguments: argparse.Namespace) -> int:
@@ -227,7 +344,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         "validate": _validate,
         "catalog": _catalog,
         "preserve": _preserve,
+        "preserve-request": _preserve_request,
+        "snapshot": _snapshot,
+        "privacy-scan": _privacy_scan,
         "evaluate-agent": _evaluate_agent,
         "overlap": _overlap,
     }
-    return handlers[arguments.command](arguments)
+    try:
+        return handlers[arguments.command](arguments)
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        corpus.CorpusError,
+        yaml.YAMLError,
+        json.JSONDecodeError,
+    ) as error:
+        detail = (
+            error.stderr.strip()
+            if isinstance(error, subprocess.CalledProcessError) and error.stderr
+            else str(error)
+        )
+        print(f"{arguments.command} failed: {detail}", file=sys.stderr)
+        return 2

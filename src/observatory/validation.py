@@ -12,7 +12,8 @@ from typing import Any
 
 import yaml
 
-from observatory import corpus
+from observatory import corpus, privacy
+from observatory.safe_files import UnsafePathError, read_regular
 
 LOCAL_TYPES = frozenset(
     {
@@ -32,15 +33,6 @@ RESERVED = frozenset({"index.md", "log.md"})
 STATUS_VALUES = frozenset({"draft", "stable", "deprecated"})
 PROJECT_STATUS_VALUES = frozenset({"planning", "active", "paused", "completed", "abandoned"})
 ACTOR = re.compile(r"\A(?:human:[^\s]+|process:[^\s]+|[^\s/]+/[^\s/]+)\Z")
-SECRET_PATTERNS = {
-    "private key": re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
-    "GitHub token": re.compile(rb"\bgh[opusr]_[A-Za-z0-9]{30,}\b"),
-    "AWS access key": re.compile(rb"\bAKIA[0-9A-Z]{16}\b"),
-    "generic assigned secret": re.compile(
-        rb"(?:api[_-]?key|access[_-]?token|client[_-]?secret|password)\s*[:=]\s*[\"']?[A-Za-z0-9_/+.-]{20,}",
-        re.IGNORECASE,
-    ),
-}
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,6 +41,8 @@ class ValidationResult:
     tracked_count: int
     errors: tuple[str, ...]
     warnings: tuple[str, ...]
+    scanned_count: int = 0
+    skipped_count: int = 0
 
     @property
     def ok(self) -> bool:
@@ -109,12 +103,22 @@ def git_tracked_files(root: Path) -> Iterable[str]:
     return sorted(set(completed.stdout.decode().split("\0")) - {""})
 
 
-def validate(root: Path, *, tracked_files: TrackedFiles = git_tracked_files) -> ValidationResult:
+def validate(
+    root: Path,
+    *,
+    tracked_files: TrackedFiles = git_tracked_files,
+    history: bool = False,
+    strict_privacy: bool = False,
+) -> ValidationResult:
     errors: list[str] = []
     warnings: list[str] = []
     identifiers: dict[str, str] = {}
     relationship_targets: list[tuple[str, str, str]] = []
-    files = corpus.paths(root)
+    try:
+        files = corpus.paths(root)
+    except corpus.CorpusError as error:
+        return ValidationResult(0, 0, (str(error),), (), 0, 0)
+    known_paths = {path.relative_to(root).as_posix() for path in files}
 
     for path in files:
         relative = path.relative_to(root).as_posix()
@@ -217,25 +221,25 @@ def validate(root: Path, *, tracked_files: TrackedFiles = git_tracked_files) -> 
                 if data.get("id") == target:
                     errors.append(f"{relative}: {field} must not reference the document itself")
 
-        for target in corpus.MARKDOWN_LINK.findall(document.text):
-            if re.match(r"\A(?:https?:|mailto:|#)", target, re.IGNORECASE):
-                continue
-            clean = target.split("#", 1)[0]
-            if not clean:
-                continue
-            resolved = (
-                root / clean.removeprefix("/") if clean.startswith("/") else path.parent / clean
-            )
-            if not resolved.exists():
-                warnings.append(f"{relative}: broken internal link {target!r}")
+        links = corpus.resolve_links(document, root=root, known_paths=known_paths)
+        warnings.extend(f"{relative}: broken internal link {target!r}" for target in links.broken)
+        warnings.extend(f"{relative}: ambiguous wikilink {target!r}" for target in links.ambiguous)
+        warnings.extend(
+            f"{relative}: internal link escapes repository {target!r}" for target in links.escaped
+        )
 
     for relative, field, target in relationship_targets:
         if target not in identifiers:
             warnings.append(f"{relative}: {field} references unknown document id {target!r}")
 
     index_path = root / "index.md"
-    if index_path.exists():
-        match = corpus.FRONTMATTER.match(index_path.read_text(encoding="utf-8"))
+    if index_path.exists() or index_path.is_symlink():
+        try:
+            index_text = read_regular(index_path, boundary=root).decode("utf-8")
+        except (UnsafePathError, UnicodeDecodeError) as error:
+            errors.append(f"index.md: could not read safely ({error})")
+            index_text = ""
+        match = corpus.FRONTMATTER.match(index_text)
         if match is not None:
             try:
                 index_data = yaml.safe_load(match.group(1))
@@ -250,18 +254,20 @@ def validate(root: Path, *, tracked_files: TrackedFiles = git_tracked_files) -> 
                     errors.append('index.md: okf_version must be "0.2"')
 
     tracked = list(tracked_files(root))
-    for relative in tracked:
-        path = root / relative
-        if not path.is_file() or path.stat().st_size >= 2_000_000:
-            continue
-        content = path.read_bytes()
-        for label, pattern in SECRET_PATTERNS.items():
-            if pattern.search(content):
-                errors.append(f"{relative}: possible {label}")
+    scans = [privacy.scan_current(root, tracked)]
+    if history:
+        scans.append(privacy.scan_history(root))
+    for scan in scans:
+        for finding in scan.findings:
+            message = f"{finding.location}: possible {finding.kind}"
+            (errors if finding.secret or strict_privacy else warnings).append(message)
+        errors.extend(f"privacy scan incomplete: {item}" for item in scan.skipped)
 
     return ValidationResult(
         document_count=len(files),
         tracked_count=len(tracked),
         errors=tuple(dict.fromkeys(errors)),
         warnings=tuple(dict.fromkeys(warnings)),
+        scanned_count=sum(scan.scanned_count for scan in scans),
+        skipped_count=sum(len(scan.skipped) for scan in scans),
     )

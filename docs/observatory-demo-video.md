@@ -15,39 +15,33 @@ Use only synthetic labels such as `Project Alpha`, `Research note`, `Decision pr
 - duration: roughly 60–75 seconds;
 - format: 1280×720 MP4 (H.264 + AAC) plus a small GIF or poster image for the README;
 - tone: simple, calm, technical but accessible;
-- narration may be synthetic/local TTS;
+- narration uses local Kokoro with the reviewed voice; no automatic speech-engine fallback is allowed;
 - no third-party copyrighted screenshots or branding beyond plain-text names needed to explain compatibility.
 
 ## Storyboard
 
-1. **Observatory — a memory layer for AI agents**
-   - Show four generic nodes: Knowledge, Projects, Operating Model, Skills.
-   - Explain that different agents can share one durable context layer.
+1. **Mission Control overview**
+   - Show the actual sanitized command center with synthetic project and attention data.
+   - Explain that Mission Control is a local projection while Markdown and Git remain authoritative.
 
-2. **Markdown is the source of truth**
-   - Show Markdown → Git history → Any agent.
-   - Explain readable storage, version history, review, rollback, and portability.
+2. **Atlas map and neighborhood**
+   - Open Atlas, select the synthetic Context Engineering node, and show its immediate relationships.
+   - Explain that ordinary Markdown links create the graph without a second canonical database.
 
-3. **Personal Operating Model**
-   - Show generic cards: Decision principles, Evidence standards, Agent autonomy, Reusable lessons.
+3. **Explore and skill routing**
+   - Open Explore, select Skills, and search for `handoff`.
+   - Explain metadata-first retrieval and opening only the few relevant records.
+
+4. **Personal Operating Model**
+   - Show the uninitialized synthetic state rather than personal preferences.
    - Explain that it is optional and owner-reviewed, not a personality profile.
 
-4. **Context-efficient retrieval**
-   - Show Search → Match → Open 1–3 → Work.
-   - Explain that Observatory consults broadly but loads narrowly.
-
-5. **Skills + Decision Frontier**
-   - Show skill catalog routing and a small unresolved-decision tree.
-   - Explain that agents load the matching procedure and use Decision Frontier only for foggy multi-session work.
-
-6. **Mission Control**
-   - Show generic tabs: Overview, Atlas, Explore, AIRadar.
-   - Within Explore show Index, Skills, Resources, Rules, Operating Model.
-   - State that views are projections; Markdown/Git remain authoritative.
-
-7. **Closing**
+5. **Return and closing**
+   - Return to the command center and display the closing message.
    - Text: `Your agents can change. Your useful memory does not have to.`
    - Text: `Clone it. Point an agent at AGENTS.md. Build your own Observatory.`
+
+The capture must not imply that AI Radar, Decision Frontier, or another feature was demonstrated when it did not appear on screen. Scene order and hold timing are machine-readable in `scripts/demo/scenes.json`.
 
 ## Narration
 
@@ -73,3 +67,25 @@ docs/media/observatory-overview-readme.gif
 ```
 
 Pin the GIF/poster immediately below the README introduction and link it to the MP4 with visible text such as **Watch the 70-second Observatory overview**. Verify the committed media metadata and frames contain no personal information before the first public push.
+
+## Reproduction contract
+
+The end-to-end builder runs the real sanitized UI, Playwright capture, local Kokoro narration, FFmpeg packaging, caption embedding, GIF generation, stream/silence checks, and provenance-manifest generation. It deliberately requires local model and voice assets:
+
+```sh
+.venv/bin/python scripts/demo/build-walkthrough.py \
+  --model /path/to/kokoro-v1.0.int8.onnx \
+  --voices /path/to/voices-v1.0.bin
+```
+
+Watch the complete derived MP4 with audio and inspect every generated review frame. Only after that human review, publish the unchanged derived artifacts with the private denylist gate:
+
+```sh
+.venv/bin/python scripts/demo/build-walkthrough.py \
+  --model /path/to/kokoro-v1.0.int8.onnx \
+  --voices /path/to/voices-v1.0.bin \
+  --denylist /private/path/public-release-denylist.txt \
+  --publish-reviewed
+```
+
+Run Gitleaks before committing media. Do not run `--publish-reviewed` until the intended Mission Control revision and its tests are final.

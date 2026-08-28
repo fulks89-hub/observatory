@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "viewport": { "width": 1280, "height": 720, "fps": 30 },
+  "scenes": [
+    { "id": "overview", "title": "Mission Control overview", "hold_ms": 7000 },
+    { "id": "atlas-map", "title": "Atlas relationship map", "hold_ms": 6000 },
+    { "id": "atlas-detail", "title": "Atlas neighborhood interaction", "hold_ms": 5200 },
+    { "id": "explore", "title": "Explore projection", "hold_ms": 5600 },
+    { "id": "skill-routing", "title": "Focused skill search", "hold_ms": 4300 },
+    { "id": "operating-model", "title": "Uninitialized Personal Operating Model", "hold_ms": 9000 },
+    { "id": "return-overview", "title": "Return to command center", "hold_ms": 5500 },
+    { "id": "closing", "title": "Closing message", "hold_ms": 6500 }
+  ]
+}

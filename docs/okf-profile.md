@@ -16,7 +16,7 @@ This profile was reconciled against the normative [OKF v0.2 specification at com
 
 ## Local profile and bundle boundary
 
-The repository contains operational documentation and Skills as well as knowledge. The OKF bundle validated by `observatory validate` is the durable corpus in `concepts/`, `sources/`, `research/`, `people/`, `ideas/`, `questions/`, and `projects/`, with the root `index.md` as its navigation entry point. Files such as `README.md`, `SECURITY.md`, and `skills/*/SKILL.md` are repository operations material, not OKF concept documents.
+The repository contains operational documentation and Skills as well as knowledge. The OKF bundle validated by `.venv/bin/observatory validate` is the durable corpus in `concepts/`, `sources/`, `research/`, `people/`, `ideas/`, `questions/`, and `projects/`, with the root `index.md` as its navigation entry point. Files such as `README.md`, `SECURITY.md`, and `skills/*/SKILL.md` are repository operations material, not OKF concept documents.
 
 Observatory adds optional `id` values for duplicate detection and applies a local type-to-directory ontology. `ResearchDossier` is one such local open type: it denotes a long-form multi-source investigation under `research/`. This is an organizational convention, not a claim that upstream OKF defines a dossier type or a `research/` directory. Dossier files remain ordinary OKF v0.2-compatible Markdown and must preserve unknown fields like any other durable document.
 

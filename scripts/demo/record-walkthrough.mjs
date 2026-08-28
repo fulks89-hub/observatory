@@ -1,9 +1,11 @@
-import { mkdir, readdir, rename } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rename } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(root, '.derived', 'demo-output');
+const scenePlan = JSON.parse(await readFile(resolve(import.meta.dirname, 'scenes.json'), 'utf8'));
+const holds = new Map(scenePlan.scenes.map((scene) => [scene.id, scene.hold_ms]));
 const videoOutput = resolve(output, 'raw');
 await mkdir(videoOutput, { recursive: true });
 
@@ -47,6 +49,11 @@ await page.addInitScript(() => {
 });
 
 const pause = (milliseconds) => page.waitForTimeout(milliseconds);
+const hold = (sceneId) => {
+  const milliseconds = holds.get(sceneId);
+  if (!Number.isInteger(milliseconds) || milliseconds < 0) throw new Error(`Invalid scene: ${sceneId}`);
+  return pause(milliseconds);
+};
 async function glideTo(locator, duration = 850) {
   const box = await locator.boundingBox();
   if (!box) throw new Error('Target is not visible');
@@ -61,7 +68,7 @@ async function clickSmooth(locator) {
 await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
 await page.locator('h1').waitFor({ state: 'visible' });
 await page.mouse.move(980, 180);
-await pause(7000);
+await hold('overview');
 
 await page.mouse.wheel(0, 390);
 await pause(2600);
@@ -69,31 +76,31 @@ await page.mouse.wheel(0, -390);
 await pause(1100);
 await clickSmooth(page.getByRole('button', { name: 'Atlas', exact: true }));
 await page.getByRole('heading', { name: 'The Atlas' }).waitFor({ state: 'visible' });
-await pause(6000);
+await hold('atlas-map');
 
 const contextNode = page.getByRole('button', { name: 'Open Context engineering' });
 await clickSmooth(contextNode);
-await pause(5200);
+await hold('atlas-detail');
 
 await clickSmooth(page.getByRole('link', { name: /Explore Observatory/ }));
 await page.getByRole('heading', { name: 'Explore Observatory' }).waitFor({ state: 'visible' });
-await pause(5600);
+await hold('explore');
 
 await clickSmooth(page.getByRole('button', { name: 'Skills', exact: true }));
 await pause(3900);
 const search = page.getByRole('searchbox', { name: 'Search this view…' });
 await glideTo(search);
 await search.fill('handoff');
-await pause(4300);
+await hold('skill-routing');
 await search.fill('');
 await pause(900);
 
 await clickSmooth(page.getByRole('button', { name: 'Operating Model', exact: true }));
-await pause(9000);
+await hold('operating-model');
 
 await clickSmooth(page.getByRole('link', { name: 'Back to command center', exact: true }));
 await page.getByRole('heading', { name: 'Observatory command center.' }).waitFor({ state: 'visible' });
-await pause(5500);
+await hold('return-overview');
 
 await page.evaluate(() => {
   const close = document.createElement('section');
@@ -103,7 +110,7 @@ await page.evaluate(() => {
   document.body.append(close);
   requestAnimationFrame(() => { close.style.opacity = '1'; });
 });
-await pause(6500);
+await hold('closing');
 
 const video = page.video();
 await context.close();

@@ -4,15 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check scripts/collect.mjs && node --check scripts/collect-explore.mjs && node --check scripts/sync-airadar.mjs && node --check scripts/evaluate-airadar.mjs && node --check scripts/ai-evaluation-contract.mjs && node --check server.mjs",
+    "check": "node --check scripts/collect.mjs && node --check scripts/collect-explore.mjs && node --check scripts/sync-airadar.mjs && node --check scripts/ai-evaluation-contract.mjs && node --check scripts/atomic-io.mjs && node --check scripts/airadar-store.mjs && node --check scripts/security.mjs && node --check scripts/start-share.mjs && node --check src/safe-url.js && node --check server.mjs",
     "test": "node --test tests/*.test.mjs",
     "refresh": "node scripts/collect.mjs && node scripts/collect-explore.mjs",
     "sync:airadar": "node scripts/sync-airadar.mjs",
-    "evaluate:airadar": "node scripts/evaluate-airadar.mjs",
     "dev": "npm run refresh && vite --host 127.0.0.1",
     "build": "npm run refresh && vite build",
     "start": "npm run refresh && vite build && node server.mjs",
-    "start:share": "MC_READ_ONLY=1 npm run refresh && MC_READ_ONLY=1 vite build && MC_READ_ONLY=1 node server.mjs"
+    "start:share": "node scripts/start-share.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "6.0.5",

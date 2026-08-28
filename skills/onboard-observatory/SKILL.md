@@ -62,11 +62,11 @@ After the owner approves the bounded integration packet but before the first wri
 
 1. List every existing file the approved change may modify, including global or provider-specific agent files.
 2. Ask the owner to approve an exact private local snapshot destination. Do not default to the Observatory repository, a public/shared repository, or cloud-synced storage.
-3. Create a byte-for-byte preservation copy plus a manifest containing original path, backup path, SHA-256, size, mode, timestamp, and Git commit/blob identity when available.
-4. Re-hash every copied file and require an exact match before changing any source.
+3. Run `.venv/bin/observatory snapshot create --destination <approved-new-directory> --source <absolute-file>` with one `--source` for every approved file. This creates the byte-for-byte copies and versioned manifest containing original path, backup path, SHA-256, size, mode, timestamps, and Git commit/blob identity when available.
+4. Run `.venv/bin/observatory snapshot verify <approved-new-directory> --compare-sources` immediately before changing any source. Require an exact match.
 5. Report the verified snapshot location and rollback boundary. If any source cannot be copied or verified, do not modify it.
 
-Treat the snapshot as sensitive when its sources are sensitive. Never commit, upload, summarize, or inspect secret-bearing contents merely because they were backed up. A verified snapshot permits a bounded rollback claim for the copied files; it does not guarantee reversal of external services, credentials, databases, provider state, or side effects outside the manifest.
+Treat the snapshot as sensitive when its sources are sensitive. Never commit, upload, summarize, or inspect secret-bearing contents merely because they were backed up. A verified snapshot permits a bounded rollback claim for the copied files; it does not guarantee reversal of external services, credentials, databases, provider state, or side effects outside the manifest. Restoration is two-phase: first run `.venv/bin/observatory snapshot restore <snapshot>` to display the current plan and confirmation token, then request separate approval for that exact plan before rerunning with `--confirm-restore <token>`.
 
 ## Establish the workspace
 

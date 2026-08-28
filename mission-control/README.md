@@ -4,7 +4,7 @@ Observatory Mission Control is the optional local React dashboard for Observator
 
 The **Atlas** tab derives its nodes and edges from ordinary links among `projects/`, `concepts/`, `research/`, `ideas/`, and `questions/`. It is an optional view, not a second source of truth. Select any object to inspect its immediate neighborhood.
 
-The **Explore Observatory** surface is a list/search companion to Atlas. It derives a disposable `public/data/explore.json` projection from canonical Markdown and repository instructions so the owner can quickly browse the root index, reusable skills, resources/knowledge records, repository rules, and Personal Operating Model metadata. The generated projection is ignored by Git and never becomes canonical memory.
+The **Explore Observatory** surface is a list/search companion to Atlas. It derives a disposable `public/data/explore.json` projection from canonical Markdown and repository instructions so the owner can quickly browse the root index, reusable skills, resources/knowledge records, repository rules, and Personal Operating Model metadata. The generated projection is ignored by Git and never becomes canonical memory. In read-only mode the server dynamically replaces even a stale projection with an empty redacted shape.
 
 The cosmic background is a project-local generated asset at `public/assets/observatory-cosmic-field.png`. CSS keeps its stars crisp and visible while dark, translucent card surfaces preserve interface readability.
 
@@ -31,7 +31,7 @@ It binds to `127.0.0.1` by default, stores preferences locally, omits filesystem
 Requires Node.js 22.12 or newer.
 
 ```bash
-npm install
+npm ci
 npm start
 ```
 
@@ -41,7 +41,7 @@ Every `refresh`, `dev`, `build`, and `start` run regenerates both the ordinary M
 
 ## Configure projects
 
-Edit `config/projects.json`. Mission Control does not crawl home-directory locations by default. To opt in to local project discovery, provide one or more colon-separated parent directories in `MC_PROJECT_ROOTS`. When it finds a configured checkout beneath an approved root, it reads `.ops/PROJECT_STATUS.md` and local Git status.
+Edit `config/projects.json`. Mission Control does not crawl home-directory locations by default. To opt in to local project discovery, provide parent directories in `MC_PROJECT_ROOTS`, separated by the platform path-list delimiter (`:` on POSIX, `;` on Windows). When it finds a configured checkout beneath an approved root, it reads `.ops/PROJECT_STATUS.md` and local Git status.
 
 Set `OBSERVATORY_ROOT` only if this dashboard is moved outside its Observatory repository. By default the Atlas and Explore collector read the parent repository.
 
@@ -59,12 +59,15 @@ Optional private GitHub artifact synchronization is disabled until all of the fo
 
 Imported report data remains ignored by Git.
 
+Synchronization never sends report or bookmark text to a hosted model. No hosted evaluator is shipped: an agent-capable CLI cannot safely process untrusted reports while it can read unrelated local files or environment variables. Existing precomputed evaluation JSON can still be displayed, but generating it requires a separately reviewed, tool-free inference boundary outside this dashboard. Read-only sharing mode blocks synchronization.
+
 ## Short authenticated reviews
 
 Mission Control has no built-in user login. Never run a bare public tunnel to it. For a short invited review, keep the app on `127.0.0.1`, run it in read-only mode, and make the tunnel enforce authentication plus an exact viewer allowlist.
 
 1. Copy `config/ngrok-policy.example.yml` to the ignored file `config/ngrok-policy.local.yml`.
 2. Replace the example addresses with the exact Google-account emails allowed to view the dashboard. Keep the deny rule.
+   Confirm no placeholder remains: `! grep -q 'example.invalid' config/ngrok-policy.local.yml`.
 3. Start the read-only dashboard with `npm run start:share`.
 4. In another terminal, run `ngrok http 127.0.0.1:4173 --traffic-policy-file=config/ngrok-policy.local.yml`.
 5. Test the URL while signed out and with an unlisted account before sharing it.
@@ -77,7 +80,7 @@ For private access from a device in the same Tailscale network, keep the server 
 
 - External report content is rendered as untrusted evidence, never instructions.
 - `MC_READ_ONLY=1` blocks archive changes and artifact synchronization.
-- `MC_READ_ONLY=1` also redacts private Explore index/resource/rule/POM details by default.
+- `MC_READ_ONLY=1` redacts private project objectives/status, Atlas descriptions, AI Radar and X content, Explore index/resource/rule/POM details, and other owner-specific snapshot fields by default.
 - Generated `public/data/snapshot.json` and `public/data/explore.json` are ignored and must never be used as canonical memory.
 - No credentials or local filesystem paths enter the browser bundle.
 - The server has no built-in public authentication. Do not expose it to the public internet.

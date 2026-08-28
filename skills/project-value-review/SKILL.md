@@ -67,4 +67,4 @@ When asked to reassess old briefs/cards/dossiers against projects that have sinc
 6. Produce a portfolio summary grouped by `adopt now`, `prototype`, `watch`, and `skip`, with the highest-value/lowest-lift candidates first.
 7. Surface stale assessments and missing prerequisites; never claim a project was reviewed if it was not.
 
-Finish by running `observatory validate` and reviewing provenance, privacy, unsupported certainty, and accidental duplication.
+Finish by running `.venv/bin/observatory validate` and reviewing provenance, privacy, unsupported certainty, and accidental duplication.

@@ -9,28 +9,32 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  validate-core:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.12"
-          cache: pip
-      - run: python -m pip install --disable-pip-version-check -e '.[dev]'
+      - name: Install locked Python environment
+        run: |
+          python -m pip install --disable-pip-version-check uv==0.12.7
+          python -m uv sync --locked --extra dev
       - name: Lint Python
-        run: ruff check .
+        run: .venv/bin/ruff check .
       - name: Type-check Python
-        run: mypy src
+        run: .venv/bin/mypy src
       - name: Test Python
-        run: pytest
+        run: .venv/bin/python -m pytest
+      - name: Check documentation
+        run: .venv/bin/python scripts/check-documentation.py
       - name: Validate with Python
-        run: observatory validate
+        run: .venv/bin/observatory validate --history --strict-privacy
       - name: Build Python disposable catalog
-        run: observatory catalog --output "$RUNNER_TEMP/python-observatory-catalog.json"
+        run: .venv/bin/observatory catalog --output "$RUNNER_TEMP/python-observatory-catalog.json"
       - name: Guard durable knowledge preservation
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha }}
@@ -47,11 +51,11 @@ jobs:
           fi
           if ! git rev-parse --verify "$base^{commit}" >/dev/null 2>&1 \
             || ! git merge-base --is-ancestor "$base" HEAD; then
-            echo "Fresh-history rewrite: no reachable preservation base exists."
-            exit 0
+            echo "Preservation base is missing or is not an ancestor; refusing to bypass the guard."
+            exit 1
           fi
-          observatory preserve "$base"
-      - uses: actions/setup-node@v7
+          .venv/bin/observatory preserve "$base"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "22.12"
           cache: npm
@@ -68,3 +72,38 @@ jobs:
       - name: Build Mission Control and Explore
         working-directory: mission-control
         run: npm run build
+
+  bootstrap:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - name: Bootstrap on POSIX
+        if: runner.os != 'Windows'
+        env:
+          OBSERVATORY_PYTHON: ${{ env.pythonLocation }}/bin/python
+        run: scripts/bootstrap-observatory.sh --check && scripts/bootstrap-observatory.sh --install
+      - name: Bootstrap on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          OBSERVATORY_PYTHON: ${{ env.pythonLocation }}\python.exe
+        run: |
+          scripts/bootstrap-observatory.ps1
+          scripts/bootstrap-observatory.ps1 -Install
+
+  validate:
+    if: always()
+    needs: [validate-core, bootstrap]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every validation job
+        env:
+          CORE_RESULT: ${{ needs.validate-core.result }}
+          BOOTSTRAP_RESULT: ${{ needs.bootstrap.result }}
+        run: test "$CORE_RESULT" = success && test "$BOOTSTRAP_RESULT" = success

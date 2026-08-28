@@ -38,11 +38,7 @@ def test_accepts_personal_operating_model_types_in_canonical_root(tmp_path):
         "personal-operating-model/ranked-recommendations.md",
         title="Prefer ranked recommendations",
         document_type="OperatingPreference",
-        extra=(
-            "id: pom-ranked-recommendations\n"
-            "origin: owner-explicit\n"
-            "valid_from: 2026-08-27\n"
-        ),
+        extra=("id: pom-ranked-recommendations\norigin: owner-explicit\nvalid_from: 2026-08-27\n"),
     )
     write_card(
         tmp_path,
@@ -114,3 +110,12 @@ def test_rejects_duplicate_document_ids_and_broken_yaml(tmp_path):
     rendered = "\n".join(result.errors)
     assert "duplicate id" in rendered
     assert "invalid YAML" in rendered
+
+
+def test_warns_for_broken_and_ambiguous_wikilinks(tmp_path):
+    write_card(tmp_path, "concepts/source.md", title="Source", body="[[Missing]] [[Same]]")
+    write_card(tmp_path, "concepts/a/same.md", title="Same A")
+    write_card(tmp_path, "concepts/b/same.md", title="Same B")
+    result = validate(tmp_path, tracked_files=tracked)
+    assert any("broken internal link 'Missing'" in warning for warning in result.warnings)
+    assert any("ambiguous wikilink 'Same'" in warning for warning in result.warnings)

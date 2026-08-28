@@ -14,7 +14,7 @@ Observatory's deterministic tests protect structure; they do not prove that a mo
 Record each run as JSON and score it with:
 
 ```sh
-observatory evaluate-agent path/to/run.json --json
+.venv/bin/observatory evaluate-agent path/to/run.json --json
 ```
 
 The trace must identify `case_id`, `provider`, `model`, `corpus_commit`, `inspected_paths`, `cited_paths`, `created_paths`, and `assertion_results`. Each assertion result uses `{"status": "pass|fail|not_applicable", "evidence": "..."}`. Missing evidence fails closed. The command exits nonzero when expected paths were not inspected/cited, a required assertion did not pass, or a find-existing case created a duplicate.
