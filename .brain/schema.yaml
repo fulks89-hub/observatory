@@ -1,0 +1,70 @@
+version: 1
+target: OKF-0.2
+document:
+  frontmatter: required
+  required_fields:
+    - type
+  recommended_fields:
+    - title
+    - description
+    - tags
+  preserve_unknown_fields: true
+types:
+  local_recommended:
+    - Concept
+    - Source
+    - ResearchDossier
+    - Person
+    - Idea
+    - Question
+    - Project
+    - OperatingPrinciple
+    - OperatingPreference
+    - OperatingLesson
+  accept_unknown: true
+reserved_filenames:
+  - index.md
+  - log.md
+links:
+  canonical_relationship_syntax: markdown
+provenance:
+  source_field: sources
+  source_resource_field: resource
+  generated_field: generated
+  verified_field: verified
+trust:
+  derived_tiers:
+    - unverified
+    - machine-confirmed
+    - human-reviewed
+lifecycle:
+  status_values:
+    - draft
+    - stable
+    - deprecated
+  stale_after: absolute-date
+  temporal_validity:
+    valid_from: absolute-date
+    valid_until: absolute-date
+  relationships:
+    supersedes: document-id-sequence
+    conflicts_with: document-id-sequence
+project:
+  status_extension: project_status
+  status_values:
+    - planning
+    - active
+    - paused
+    - completed
+    - abandoned
+personal_operating_model:
+  types:
+    - OperatingPrinciple
+    - OperatingPreference
+    - OperatingLesson
+  canonical_directory: personal-operating-model/
+  origin_values:
+    - owner-explicit
+    - reviewed-observation
+    - owner-correction
+  inferred_patterns_require_owner_review: true

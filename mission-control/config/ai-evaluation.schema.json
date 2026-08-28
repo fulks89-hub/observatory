@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["topic_evaluations", "x_digest"],
+  "properties": {
+    "topic_evaluations": {
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "tldr", "insight", "why_it_matters", "next_action", "confidence"],
+        "properties": {
+          "id": { "type": "string", "maxLength": 64 },
+          "tldr": { "type": "string", "maxLength": 240 },
+          "insight": { "type": "string", "maxLength": 500 },
+          "why_it_matters": { "type": "string", "maxLength": 400 },
+          "next_action": { "type": "string", "maxLength": 240 },
+          "confidence": { "type": "string", "enum": ["low", "medium", "high"] }
+        }
+      }
+    },
+    "x_digest": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "tldr", "insight", "why_it_matters", "next_action", "confidence", "bookmark_ids"],
+        "properties": {
+          "title": { "type": "string", "maxLength": 120 },
+          "tldr": { "type": "string", "maxLength": 240 },
+          "insight": { "type": "string", "maxLength": 500 },
+          "why_it_matters": { "type": "string", "maxLength": 400 },
+          "next_action": { "type": "string", "maxLength": 240 },
+          "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+          "bookmark_ids": {
+            "type": "array",
+            "maxItems": 12,
+            "items": { "type": "string", "maxLength": 64 }
+          }
+        }
+      }
+    }
+  }
+}
