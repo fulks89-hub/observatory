@@ -1,16 +1,16 @@
 WEBVTT
 
-00:00.000 --> 00:10.500
+00:00.000 --> 00:10.810
 Observatory is a portable memory layer for AI agents. Instead of depending on one chat, model, or vendor, durable knowledge stays in readable Markdown, with Git providing history, review, and rollback.
 
-00:10.500 --> 00:23.500
+00:10.810 --> 00:24.195
 Mission Control is a local projection of that source of truth. The Overview brings projects and attention signals into one calm workspace. The Atlas turns ordinary Markdown links into a connected map, without creating a second database.
 
-00:23.500 --> 00:36.500
+00:24.195 --> 00:37.580
 Explore keeps retrieval focused. An agent can inspect the index, route through a lightweight skill catalog, search for the procedure it needs, and open only the few records relevant to the task.
 
-00:36.500 --> 00:52.000
+00:37.580 --> 00:53.540
 The Personal Operating Model is optional and starts empty. It can capture owner-reviewed decision principles, evidence standards, desired autonomy, and reusable lessons. It is not a personality profile, and it never overrides current instructions or stronger evidence.
 
-00:52.000 --> 01:00.500
+00:53.540 --> 01:02.300
 Your agents can change. Your useful memory does not have to. Clone Observatory, point an agent at AGENTS dot M D, and build your own.

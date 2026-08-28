@@ -4,7 +4,7 @@
 
 ## Artifact contract
 
-- adapter: Playwright 1.62.1 against local Mission Control, macOS local speech synthesis, FFmpeg 9.0.1;
+- adapter: Playwright 1.62.1 against local Mission Control, Kokoro ONNX 0.4.9 with the `af_heart` voice, FFmpeg 9.0.1;
 - display: 1280×720, 30 fps, H.264 video, AAC narration, embedded English captions;
 - duration: approximately 64.7 seconds;
 - source data: generic `mission-control/config/seed.json` and synthetic canonical examples;
@@ -43,6 +43,22 @@ npx playwright install chromium
 npm run record
 ```
 
-The deterministic raw capture is written to `.derived/demo-output/observatory-walkthrough-raw.webm`. Generate narration from `docs/media/observatory-overview-script.txt` with a local voice, then package it with FFmpeg as H.264/AAC at 1280×720. Preserve `docs/media/observatory-overview.vtt` as both an embedded caption stream and a sidecar.
+The deterministic raw capture is written to
+`.derived/demo-output/observatory-walkthrough-raw.webm`. Generate narration from
+`docs/media/observatory-overview-script.txt` with local Kokoro and the
+`af_heart` voice, then package it with FFmpeg as H.264/AAC at 1280×720. The
+repository does not distribute Kokoro model or voice-pack files; pass their
+local paths to the reproducible helper:
+
+```sh
+python scripts/demo/generate-kokoro-narration.py \
+  --model /path/to/kokoro-v1.0.int8.onnx \
+  --voices /path/to/voices-v1.0.bin \
+  --output .derived/demo-output/observatory-kokoro-af-heart.wav
+```
+
+Preserve `docs/media/observatory-overview.vtt` as both an embedded caption
+stream and a sidecar. Retain the applicable Kokoro model and runtime license
+notices when redistributing those components.
 
 Before replacing public media, review the full video with audio enabled, inspect beginning/middle/POM/ending frames, run `ffprobe` to confirm streams and dimensions, run the repository privacy audit, and update the recorded hashes and exact source commit.
