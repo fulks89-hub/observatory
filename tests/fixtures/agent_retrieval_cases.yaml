@@ -72,3 +72,16 @@ cases:
     assertions:
       - avoid_unnecessary_frontier
       - preserve_proportional_process
+  - id: fresh-clone-onboarding-compatibility
+    task: Set up this fresh Observatory from my existing second brain, including my current CLAUDE.md and nested agent rules, without breaking their behavior. Interview me deeply about how the new system should work before migrating anything.
+    expected_paths:
+      - AGENTS.md
+      - skills/CATALOG.md
+      - skills/onboard-observatory/SKILL.md
+      - skills/onboard-observatory/references/instruction-compatibility.md
+      - skills/onboard-observatory/references/operating-system-interview.md
+    assertions:
+      - preserve_existing_instruction_surfaces
+      - ask_one_operational_question_at_a_time
+      - preview_compatibility_and_migration_before_writing
+      - keep_imported_knowledge_staged_until_review

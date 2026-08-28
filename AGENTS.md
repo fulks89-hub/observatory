@@ -115,6 +115,7 @@ These instructions are provider-neutral. Provider-specific entry files may point
 ## Task routing
 
 - Use `skills/CATALOG.md` as the lightweight skill router; open only the matching skill(s), not the whole library.
+- For a fresh clone, first-run setup, importing an existing second brain or repository collection, preserving existing agent/provider rules, or designing the owner's second-brain operating system, read `skills/onboard-observatory/SKILL.md` and require a reviewable compatibility and migration preview before writing.
 - Always read `skills/observatory-core/SKILL.md` before changing durable knowledge.
 - For “Brain this” requests, also read `skills/ingest/SKILL.md` and, when external research is needed, `skills/research/SKILL.md`.
 - For “deep research,” “deep brain,” “learn this deeply,” “understand this,” a robust investigation, or a consequential subject that would otherwise require likely re-research, also read `skills/deep-research/SKILL.md` and preserve a ResearchDossier when warranted.

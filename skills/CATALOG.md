@@ -8,6 +8,7 @@ This is the lightweight routing index for reusable agent procedures in `skills/`
 
 | Skill | Use when | Path |
 | --- | --- | --- |
+| Onboard Observatory | Fresh-clone setup, instruction-safe migration, owner workflow interview, or second-brain adoption | `skills/onboard-observatory/SKILL.md` |
 | Observatory Core | Editing canonical OKF knowledge | `skills/observatory-core/SKILL.md` |
 | Ingest | Brain/add supplied material into durable knowledge | `skills/ingest/SKILL.md` |
 | Research | Research is needed before durable ingest | `skills/research/SKILL.md` |

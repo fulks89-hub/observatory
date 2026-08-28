@@ -59,7 +59,7 @@ If the agent recognizes repository skills, the shorter prompt works:
 
 > Use `$onboard-observatory` to set this up with me.
 
-The interview asks about existing notes and repositories, active projects, important people and tools, AI Radar watch targets, and explicit exclusions. Existing material is inventoried read-only and enters `staging/migration/` before any canonical promotion.
+The interview asks one question at a time about existing notes and repositories, the operating loop you want from a dedicated second brain, active projects, agent autonomy and evidence standards, important people and tools, AI Radar watch targets, and explicit exclusions. It inventories existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules without replacing them, then shows a compatibility and migration blueprint. Existing material is inventoried read-only and enters `staging/migration/` before any canonical promotion.
 
 ## 4. Install and verify Observatory
 

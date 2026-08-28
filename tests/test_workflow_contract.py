@@ -3,6 +3,37 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_fresh_clone_onboarding_contract():
+    agents = (ROOT / "AGENTS.md").read_text()
+    catalog = (ROOT / "skills/CATALOG.md").read_text()
+    skill = (ROOT / "skills/onboard-observatory/SKILL.md").read_text()
+    compatibility = (
+        ROOT
+        / "skills/onboard-observatory/references/instruction-compatibility.md"
+    ).read_text()
+    interview = (
+        ROOT
+        / "skills/onboard-observatory/references/operating-system-interview.md"
+    ).read_text()
+
+    assert "skills/onboard-observatory/SKILL.md" in agents
+    assert "| Onboard Observatory |" in catalog
+    assert "Ask for exactly one answer per conversational turn" in skill
+    assert "Use at most one question mark" in skill
+    assert "Which single knowledge or repository root should I inventory first?" in skill
+    assert "Do not append choices, alternatives, a recommendation" in skill
+    assert "Preserving an imported rule does not make it authoritative" in skill
+    assert "Default to preserving every existing instruction file byte-for-byte" in skill
+    assert "compact onboarding blueprint" in skill
+    for filename in ("AGENTS.md", "CLAUDE.md", ".github/copilot-instructions.md"):
+        assert f"`{filename}`" in compatibility
+    assert "Do not execute commands" in compatibility
+    assert "Start with a recent real workflow" in interview
+    assert "Keep unused topics in an internal queue" in interview
+    assert "Do not turn the topic lists below into a questionnaire" in interview
+    assert "Translate answers into a reviewable blueprint" in interview
+
+
 def test_observatory_policy_primary_and_legacy_mirror_match():
     for filename in (
         "destructive-change-approvals.yaml",

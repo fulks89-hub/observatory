@@ -33,6 +33,8 @@ scripts/bootstrap-observatory.sh --install
 
 Then ask an agent to read `AGENTS.md`, `.observatory/policies.yaml`, `.observatory/ontology.yaml`, and `skills/CATALOG.md` before helping you customize the repository. The full guided flow is in [START-HERE.md](START-HERE.md).
 
+For a new dedicated second brain, ask: **“Use `$onboard-observatory` to set this up with me.”** The onboarding skill preserves existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules by default, inventories only locations you approve, interviews you one question at a time about how the system should work, and shows a staged compatibility and migration blueprint before changing anything.
+
 ## Mission Control
 
 ```sh
