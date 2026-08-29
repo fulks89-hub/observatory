@@ -12,21 +12,23 @@ Run a guided interview in short rounds. Ask for exactly one answer per conversat
 Before asking for a path, source, or working preference, give a short plain-language orientation covering:
 
 - **What Observatory is:** a private, Git-backed second brain whose readable Markdown remains canonical while search, graphs, dashboards, embeddings, and runtime memory remain replaceable projections.
-- **What onboarding does:** learns the owner's goals and operating habits, inventories only approved knowledge sources and rule files read-only, then proposes staged mappings, workflows, and optional integrations.
+- **What onboarding does:** checks the local setup read-only, helps establish an independently owned private copy, learns the owner's goals and operating habits, inventories only approved knowledge sources and rule files read-only, then proposes staged mappings, workflows, and optional integrations.
 - **What onboarding does not do:** it does not copy knowledge, rewrite rules, enable services, spend money, or promote inferred preferences merely because the interview began.
 - **How compatibility is protected:** existing `AGENTS.md`, `CLAUDE.md`, nested rules, and provider settings remain unchanged while their scope and conflicts are mapped. Any proposed change is shown as an itemized diff with risks, validation, and rollback before a write.
-- **Where approval occurs:** the owner first approves beginning the read-only interview, then separately approves any integration or migration writes.
+- **Where approval occurs:** the owner first approves beginning the read-only interview, then separately approves any system-tool installation, GitHub authentication, private-repository creation/push, or integration and migration writes.
 
 Do not claim zero compatibility risk. Explain that preserve-first inventory, explicit diffs, bounded validation, and rollback reduce risk, and that uncertain compatibility remains labeled rather than guessed.
 
 The opening response must contain four explicit parts, in this order:
 
 1. **What this is** — Observatory keeps durable knowledge in readable Markdown and Git so the owner can change AI tools without losing the second brain.
-2. **What onboarding will do** — learn how the owner works and inventory only owner-approved sources read-only before proposing a staged structure.
+2. **What onboarding will do** — check prerequisites, establish the owner's private copy with approval, learn how the owner works, and inventory only owner-approved sources read-only before proposing a staged structure.
 3. **How existing rules stay safe** — leave all current rule files unchanged during discovery, map their scopes and conflicts, and never promise untested compatibility.
-4. **Approval gates** — no inspection until the owner approves the interview; no integration or migration writes until the owner later approves an exact bounded packet with validation and rollback.
+4. **Approval gates** — no inspection until the owner approves the interview; no system installation, authentication, repository creation/push, integration, or migration write until the owner later approves that exact bounded action with its effects, validation, and available rollback.
 
-Do not compress these into a generic promise to be careful. Do not ask for paths, exclusions, preferences, or confirmation of inventory in the opening response. End the opening turn with exactly: **“Would you like to begin the read-only onboarding interview?”** Do not append choices, another question, or requested inputs. If the owner declines, stop without inspecting anything. If the owner approves, ask in the next turn: **“Which single knowledge or repository root should I inventory first?”** Ask exclusions in the following turn, then desired outcomes, and continue one requested answer at a time. Do not inspect anything before both the approved root and its exclusions are clear.
+Do not compress these into a generic promise to be careful. Do not ask for paths, exclusions, preferences, or confirmation of inventory in the opening response. End the opening turn with exactly: **“Would you like to begin the read-only onboarding interview?”** Do not append choices, another question, or requested inputs. If the owner declines, stop without inspecting anything.
+
+If the owner approves, read [references/first-run-bootstrap.md](references/first-run-bootstrap.md), inspect only this clone and its prerequisite/remotes report, and ask first: **“What should this Observatory be called?”** Ask the intended GitHub owner in the next turn. Establish or explicitly defer the owner-controlled private copy through that reference before requesting personal knowledge. Then ask: **“Which single knowledge or repository root should I inventory first?”** Ask exclusions in the following turn, then desired outcomes, and continue one requested answer at a time. Do not inspect an external root before both the approved root and its exclusions are clear.
 
 ## Preserve the foundation
 

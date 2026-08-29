@@ -29,30 +29,44 @@ PYTHON312="$(brew --prefix python@3.12)/bin/python3.12"
 
 On another platform, set `PYTHON312` to the absolute path of an equivalently
 maintained Python.org or package-manager interpreter and verify it, or use the
-`uv` fallback in section 4. Do not use a Python executable stored inside another
+`uv` fallback in section 5. Do not use a Python executable stored inside another
 project's temporary work directory.
 
-## 2. Clone the template and make an independent repository
+## 2. Ask an agent to create your private copy
+
+The simplest supported first run is to send a local coding agent one message:
+
+> Set up my own private Observatory from `https://github.com/fulks89-hub/observatory`. Check prerequisites first and ask before installing system tools, authenticating GitHub, creating a repository, or pushing anything. After cloning, read and follow the repository's onboarding instructions completely.
+
+The agent may check installed commands and versions without changing them. If Git, Python 3.12+, or the GitHub CLI needed for private-repository creation is missing, it must show the exact package, trusted source, install command, privileges, and system effects, then obtain approval before installing. GitHub authentication is a separate approval and must use the normal browser or device flow without exposing a token to the repository.
+
+After cloning and explaining Observatory, the agent asks what the copy should be called and who or which organization should own it. It then asks for exact approval before creating and pushing a new private GitHub repository. Personal knowledge is not requested before that private destination is verified unless the owner explicitly chooses a local-only setup.
+
+## 3. Manual clone and private-copy setup
 
 ```sh
-# Replace OWNER with the account or organization publishing your chosen copy.
-OBSERVATORY_TEMPLATE_OWNER=OWNER
-test "$OBSERVATORY_TEMPLATE_OWNER" != OWNER || { echo "Replace OWNER before cloning." >&2; exit 2; }
-git clone "https://github.com/${OBSERVATORY_TEMPLATE_OWNER}/observatory.git" observatory
+git clone https://github.com/fulks89-hub/observatory.git observatory
 cd observatory
-git remote rename origin template
 ```
 
-Create a new **private, empty** GitHub repository under your own account. Do not initialize it with a README, license, or `.gitignore`. Then connect and push your copy:
+After completing **Install and verify Observatory** below, inspect the packaged first-run state:
 
 ```sh
-git remote add origin https://github.com/YOUR-GITHUB-USERNAME/observatory.git
-git push -u origin main
+.venv/bin/python scripts/create_private_copy.py --check
+```
+
+To create the private copy, replace both occurrences of `OWNER/NAME` with the exact approved destination:
+
+```sh
+.venv/bin/python scripts/create_private_copy.py \
+  --create-private \
+  --repository OWNER/NAME \
+  --confirm-private-create OWNER/NAME
 ```
 
 `template` remains a read-only reference to the upstream public repository. `origin` is your editable repository.
 
-## 3. Start any AI agent safely
+## 4. Start any AI agent safely
 
 Agents do not need native skill discovery. Give any agent this exact instruction:
 
@@ -68,7 +82,7 @@ For every approved existing file that could change, onboarding first creates a p
 
 The agent uses the checked-in CLI rather than improvising this contract: `snapshot create --destination <new-private-directory> --source <absolute-file>`, `snapshot verify <directory> --compare-sources`, then the two-phase `snapshot restore <directory>` plan/token flow if restoration is later approved. These are subcommands of `.venv/bin/observatory` (or `.venv\Scripts\observatory.exe` on Windows).
 
-## 4. Install and verify Observatory
+## 5. Install and verify Observatory
 
 ```sh
 scripts/bootstrap-observatory.sh --check
@@ -92,7 +106,7 @@ If you use the `uv` fallback, the `PYTHON312` shell variable is unnecessary.
 Virtual environments remember their base interpreter, so move a suspect `.venv`
 aside and rebuild it instead of repointing a shared Python symlink.
 
-## 5. Make it yours
+## 6. Make it yours
 
 Review the onboarding preview, then approve only the pieces you want staged. Customize:
 
@@ -116,7 +130,7 @@ In Obsidian, choose **Open folder as vault** and select the repository root. No 
 
 The local `.obsidian/` workspace and plugin directory is ignored by default. This keeps device-specific layout, plugin state, and preferences out of Git while leaving all canonical Observatory Markdown available. The Observatory CLI and Mission Control do not depend on Obsidian and continue to work normally.
 
-## 6. Run Observatory Mission Control
+## 7. Run Observatory Mission Control
 
 ```sh
 cd mission-control
@@ -126,7 +140,7 @@ npm start
 
 Open <http://127.0.0.1:4173>. Mission Control stays on the local machine by default. Do not expose it to the public internet without adding authentication and a separate security review.
 
-## 7. Connect AI Radar
+## 8. Connect AI Radar
 
 Clone AI Radar beside this repository, or start its dashboard with this repository's exact path:
 

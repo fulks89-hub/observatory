@@ -22,21 +22,27 @@ This is a fresh-history public scaffold. It contains synthetic examples only—n
 
 Requirements: Git and Python 3.12+. Mission Control additionally requires Node.js 22.12+.
 
+For an agent-driven setup, send this single message to a local coding agent:
+
+> Set up my own private Observatory from `https://github.com/fulks89-hub/observatory`. Check prerequisites first and ask before installing system tools, authenticating GitHub, creating a repository, or pushing anything. After cloning, read and follow the repository's onboarding instructions completely.
+
+The agent will clone the public starter, explain Observatory, ask what the new Observatory should be called and who should own its private GitHub copy, then present exact approval gates for any missing tools and the private create-and-push operation. It will not request personal knowledge until the private destination is verified or the owner explicitly chooses a local-only setup.
+
+The equivalent manual clone begins with:
+
 ```sh
-# Replace OWNER with the account or organization publishing the copy you want.
-OBSERVATORY_TEMPLATE_OWNER=OWNER
-test "$OBSERVATORY_TEMPLATE_OWNER" != OWNER || { echo "Replace OWNER before cloning." >&2; exit 2; }
-git clone "https://github.com/${OBSERVATORY_TEMPLATE_OWNER}/observatory.git"
+git clone https://github.com/fulks89-hub/observatory.git
 cd observatory
 scripts/bootstrap-observatory.sh --check
 scripts/bootstrap-observatory.sh --install
+.venv/bin/python scripts/create_private_copy.py --check
 .venv/bin/observatory validate
 .venv/bin/pytest
 ```
 
 Then ask an agent to read `AGENTS.md`, `.observatory/policies.yaml`, `.observatory/ontology.yaml`, and `skills/CATALOG.md` before helping you customize the repository. The full guided flow is in [START-HERE.md](START-HERE.md).
 
-For a new dedicated second brain, ask: **“Use `$onboard-observatory` to set this up with me.”** Before interviewing, the skill explains what Observatory does, what onboarding will and will not touch, and how existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules are protected. It asks permission to begin the read-only interview, inventories only approved locations, proceeds one question at a time, and requires a separate explicit approval of the compatibility and migration plan before changing anything.
+For a new dedicated second brain, ask: **“Use `$onboard-observatory` to set this up with me.”** Before interviewing, the skill explains what Observatory does, what onboarding will and will not touch, and how existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules are protected. It asks permission to begin the read-only interview, checks prerequisites and remotes, asks the new copy's name and intended GitHub owner one answer at a time, and requires exact approval before tool installation, authentication, private-repository creation, or integration writes.
 
 Before an approved integration changes existing rule, configuration, Markdown, JSON, or owner documents, onboarding creates a private byte-for-byte preservation snapshot and verifies every file by SHA-256. The snapshot is not committed or uploaded. A rollback still requires explicit approval and restores only the files listed in its manifest.
 
