@@ -124,11 +124,47 @@ def test_private_copy_creation_is_exact_consent_gated_and_verified(monkeypatch, 
     assert not any("delete" in part for command in commands for part in command)
 
 
+def test_local_only_setup_is_exact_consent_gated_and_removes_template_remote(
+    monkeypatch, tmp_path
+):
+    helper = load_helper()
+    (tmp_path / "START-HERE.md").touch()
+    (tmp_path / "TEMPLATE_CHECKLIST.md").touch()
+    state = {"origin": "https://github.com/fulks89-hub/observatory.git"}
+    commands = []
+
+    monkeypatch.setattr(helper.shutil, "which", lambda name: f"/safe/{name}")
+    monkeypatch.setattr(helper, "git_remote", lambda root, name: state.get(name))
+    monkeypatch.setattr(helper, "git_remote_names", lambda root: sorted(state))
+
+    def fake_run(command, root, check=True):
+        commands.append(command)
+        if command[:3] == ["git", "status", "--porcelain"]:
+            return completed(command)
+        if command == ["git", "remote", "remove", "origin"]:
+            del state["origin"]
+            return completed(command)
+        raise AssertionError(command)
+
+    monkeypatch.setattr(helper, "run", fake_run)
+    with pytest.raises(helper.SetupError, match="confirmation must exactly match"):
+        helper.prepare_local_only(tmp_path, "yes")
+
+    result = helper.prepare_local_only(tmp_path, helper.LOCAL_ONLY_CONFIRMATION)
+
+    assert result["status"] == "prepared-local-only"
+    assert result["remotes"] == []
+    assert result["remote_backup"] is False
+    assert ["git", "remote", "remove", "origin"] in commands
+
+
 def test_first_run_skill_orders_identity_and_write_approvals():
     skill = (ROOT / "skills/onboard-observatory/SKILL.md").read_text()
     reference = (ROOT / "skills/onboard-observatory/references/first-run-bootstrap.md").read_text()
     assert "What should this Observatory be called?" in skill
     assert "Who or which organization should own" in reference
+    assert "Would you prefer local-only storage or a private GitHub repository?" in skill
+    assert "--confirm-local-only LOCAL-ONLY-NO-REMOTE" in reference
     assert skill.index("What should this Observatory be called?") < skill.index(
         "Which single knowledge or repository root should I inventory first?"
     )

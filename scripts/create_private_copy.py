@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect or create an owner-controlled private GitHub copy of Observatory."""
+"""Inspect or establish a private-GitHub or local-only Observatory copy."""
 
 from __future__ import annotations
 
@@ -14,6 +14,11 @@ from pathlib import Path
 
 NAME_PATTERN = r"[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?"
 REPOSITORY_RE = re.compile(rf"^{NAME_PATTERN}/{NAME_PATTERN}$")
+LOCAL_ONLY_CONFIRMATION = "LOCAL-ONLY-NO-REMOTE"
+PUBLIC_TEMPLATE_REMOTES = {
+    "https://github.com/fulks89-hub/observatory",
+    "https://github.com/fulks89-hub/observatory.git",
+}
 
 
 class SetupError(RuntimeError):
@@ -27,6 +32,13 @@ def run(command: list[str], root: Path, *, check: bool = True) -> subprocess.Com
 def git_remote(root: Path, name: str) -> str | None:
     result = run(["git", "remote", "get-url", name], root, check=False)
     return result.stdout.strip() if result.returncode == 0 else None
+
+
+def git_remote_names(root: Path) -> list[str]:
+    result = run(["git", "remote"], root, check=False)
+    if result.returncode != 0:
+        raise SetupError("could not inspect Git remotes")
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
 
 def authenticated_login(root: Path) -> str | None:
@@ -194,10 +206,40 @@ def create_private_copy(root: Path, repository: str, confirmation: str | None) -
     return {"status": "created-private", "repository": details, "head": head}
 
 
+def prepare_local_only(root: Path, confirmation: str | None) -> dict[str, object]:
+    if confirmation != LOCAL_ONLY_CONFIRMATION:
+        raise SetupError(f"confirmation must exactly match {LOCAL_ONLY_CONFIRMATION}")
+    if not is_public_template(root):
+        raise SetupError("local-only preparation is available only from the public template clone")
+    if shutil.which("git") is None:
+        raise SetupError("Git is required")
+    if run(["git", "status", "--porcelain"], root).stdout.strip():
+        raise SetupError(
+            "working tree is not clean; review or preserve changes before local-only setup"
+        )
+
+    remotes = git_remote_names(root)
+    if remotes != ["origin"]:
+        raise SetupError("expected exactly one public-template remote named origin")
+    origin = git_remote(root, "origin")
+    if origin not in PUBLIC_TEMPLATE_REMOTES:
+        raise SetupError("origin is not the official public Observatory template")
+
+    run(["git", "remote", "remove", "origin"], root)
+    if git_remote_names(root):
+        raise SetupError("remote removal returned without a verified no-remote state")
+    return {
+        "status": "prepared-local-only",
+        "remotes": [],
+        "remote_backup": False,
+        "warning": "Local Git history has no remote backup.",
+    }
+
+
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(
         description=(
-            "Check first-run tools or create an explicitly approved private Observatory copy."
+            "Check first-run tools or establish an explicitly approved Observatory copy."
         )
     )
     mode = result.add_mutually_exclusive_group(required=True)
@@ -209,11 +251,21 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="create and verify a new private GitHub copy",
     )
+    mode.add_argument(
+        "--prepare-local-only",
+        action="store_true",
+        help="remove the public template remote and verify a no-remote local-only copy",
+    )
     result.add_argument("--repository", help="exact GitHub OWNER/NAME for the new copy")
     result.add_argument(
         "--confirm-private-create",
         metavar="OWNER/NAME",
         help="exact confirmation token; required for the external create-and-push operation",
+    )
+    result.add_argument(
+        "--confirm-local-only",
+        metavar=LOCAL_ONLY_CONFIRMATION,
+        help="exact confirmation token; required before removing the public template remote",
     )
     return result
 
@@ -224,6 +276,10 @@ def main() -> int:
     try:
         if args.check:
             print(json.dumps(preflight(root), indent=2, sort_keys=True))
+            return 0
+        if args.prepare_local_only:
+            result = prepare_local_only(root, args.confirm_local_only)
+            print(json.dumps(result, indent=2, sort_keys=True))
             return 0
         if not args.repository:
             raise SetupError("--repository OWNER/NAME is required with --create-private")
