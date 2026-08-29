@@ -22,11 +22,19 @@ This is a fresh-history public scaffold. It contains synthetic examples only—n
 
 Requirements: Git and Python 3.12+. Mission Control additionally requires Node.js 22.12+.
 
-For an agent-driven setup, send this single message to a local coding agent:
+For an agent-driven setup, choose where your private notes should live and send the matching message to a local coding agent.
+
+**PRIVATE GITHUB VERSION** — use this when you can create an owner-controlled private repository:
 
 > Set up my own private Observatory from `https://github.com/fulks89-hub/observatory`. Check prerequisites first and ask before installing system tools, authenticating GitHub, creating a repository, or pushing anything. After cloning, read and follow the repository's onboarding instructions completely.
 
-The agent will clone the public starter, explain Observatory, ask what the new Observatory should be called and who should own its private GitHub copy, then present exact approval gates for any missing tools and the private create-and-push operation. It will not request personal knowledge until the private destination is verified or the owner explicitly chooses a local-only setup.
+**LOCAL-ONLY VERSION** — use this when the notes must not be published or pushed to any remote repository:
+
+> Set up my own local-only Observatory from `https://github.com/fulks89-hub/observatory`. My notes must not be published or pushed to any remote repository. Check prerequisites first and ask before installing anything or changing Git remotes. After cloning, read and follow the repository's onboarding instructions completely. Keep Git history locally and explain safe encrypted backup options.
+
+The agent will clone the public starter, explain Observatory, ask what the new Observatory should be called, and ask whether it should be local-only or backed by a private GitHub repository. It then presents exact approval gates for missing tools and any remote change. It will not request personal knowledge until the private destination is verified or the owner has explicitly chosen and established local-only operation.
+
+Local-only keeps the notes out of Git hosting, but it does not hide files from administrators, backups, monitoring, or data-loss-prevention software on a company-managed device. For a personal second brain, prefer a personally controlled encrypted device and an encrypted backup, follow employer policy, and never mix employer-confidential material into a personal Observatory.
 
 The equivalent manual clone begins with:
 
@@ -42,7 +50,7 @@ scripts/bootstrap-observatory.sh --install
 
 Then ask an agent to read `AGENTS.md`, `.observatory/policies.yaml`, `.observatory/ontology.yaml`, and `skills/CATALOG.md` before helping you customize the repository. The full guided flow is in [START-HERE.md](START-HERE.md).
 
-For a new dedicated second brain, ask: **“Use `$onboard-observatory` to set this up with me.”** Before interviewing, the skill explains what Observatory does, what onboarding will and will not touch, and how existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules are protected. It asks permission to begin the read-only interview, checks prerequisites and remotes, asks the new copy's name and intended GitHub owner one answer at a time, and requires exact approval before tool installation, authentication, private-repository creation, or integration writes.
+For a new dedicated second brain, ask: **“Use `$onboard-observatory` to set this up with me.”** Before interviewing, the skill explains what Observatory does, what onboarding will and will not touch, and how existing `AGENTS.md`, `CLAUDE.md`, and provider-specific rules are protected. It asks permission to begin the read-only interview, checks prerequisites and remotes, asks the new copy's name and storage mode one answer at a time, and requires exact approval before tool installation, remote removal, authentication, private-repository creation, or integration writes.
 
 Before an approved integration changes existing rule, configuration, Markdown, JSON, or owner documents, onboarding creates a private byte-for-byte preservation snapshot and verifies every file by SHA-256. The snapshot is not committed or uploaded. A rollback still requires explicit approval and restores only the files listed in its manifest.
 

@@ -21,6 +21,8 @@ def test_fresh_clone_onboarding_contract():
 
     assert "skills/onboard-observatory/SKILL.md" in agents
     assert "| Onboard Observatory |" in catalog
+    assert "local-only with no remote" in agents
+    assert "company-managed device" in agents
     assert "Ask for exactly one answer per conversational turn" in skill
     assert "Use at most one question mark" in skill
     assert "Explain the system before interviewing" in skill
@@ -28,6 +30,7 @@ def test_fresh_clone_onboarding_contract():
     assert "Do not compress these into a generic promise to be careful" in skill
     assert "Do not ask for paths, exclusions, preferences" in skill
     assert "Would you like to begin the read-only onboarding interview?" in skill
+    assert "Would you prefer local-only storage or a private GitHub repository?" in skill
     assert "Which single knowledge or repository root should I inventory first?" in skill
     assert "Do not claim zero compatibility risk" in skill
     assert "Preserving an imported rule does not make it authoritative" in skill
@@ -59,6 +62,10 @@ def test_obsidian_local_state_and_first_run_contract():
     assert "no community plugin is required" in readme
     assert "Open folder as vault" in start
     assert "CLI and Mission Control do not depend on Obsidian" in start
+    assert "PRIVATE GITHUB VERSION" in start
+    assert "LOCAL-ONLY VERSION" in start
+    assert "must not be published or pushed to any remote repository" in start
+    assert "company-managed device" in start
 
 
 def test_observatory_policy_primary_and_legacy_mirror_match():

@@ -1,6 +1,6 @@
 # Start Here
 
-This guide gets the technical clone and bootstrap of an independent, private Observatory started in about fifteen minutes. The optional guided interview and migration continue at the owner's pace; a careful migration is not a fifteen-minute promise. Your copy is yours: you will not be working in or changing the upstream repository.
+This guide gets the technical clone and bootstrap of an independent, private Observatory started in about fifteen minutes. It can use an owner-controlled private GitHub repository or remain local-only with no remote. The optional guided interview and migration continue at the owner's pace; a careful migration is not a fifteen-minute promise. Your copy is yours: you will not be working in or changing the upstream repository.
 
 ## 1. Prerequisites
 
@@ -32,17 +32,25 @@ maintained Python.org or package-manager interpreter and verify it, or use the
 `uv` fallback in section 5. Do not use a Python executable stored inside another
 project's temporary work directory.
 
-## 2. Ask an agent to create your private copy
+## 2. Choose private GitHub or local-only storage
 
-The simplest supported first run is to send a local coding agent one message:
+Choose the version that matches where your private notes should live.
+
+**PRIVATE GITHUB VERSION** — use this when you can create an owner-controlled private repository:
 
 > Set up my own private Observatory from `https://github.com/fulks89-hub/observatory`. Check prerequisites first and ask before installing system tools, authenticating GitHub, creating a repository, or pushing anything. After cloning, read and follow the repository's onboarding instructions completely.
 
-The agent may check installed commands and versions without changing them. If Git, Python 3.12+, or the GitHub CLI needed for private-repository creation is missing, it must show the exact package, trusted source, install command, privileges, and system effects, then obtain approval before installing. GitHub authentication is a separate approval and must use the normal browser or device flow without exposing a token to the repository.
+**LOCAL-ONLY VERSION** — use this when the notes must not be published or pushed to any remote repository:
 
-After cloning and explaining Observatory, the agent asks what the copy should be called and who or which organization should own it. It then asks for exact approval before creating and pushing a new private GitHub repository. Personal knowledge is not requested before that private destination is verified unless the owner explicitly chooses a local-only setup.
+> Set up my own local-only Observatory from `https://github.com/fulks89-hub/observatory`. My notes must not be published or pushed to any remote repository. Check prerequisites first and ask before installing anything or changing Git remotes. After cloning, read and follow the repository's onboarding instructions completely. Keep Git history locally and explain safe encrypted backup options.
 
-## 3. Manual clone and private-copy setup
+The agent may check installed commands and versions without changing them. If Git or Python 3.12+ is missing, it must show the exact package, trusted source, install command, privileges, and system effects, then obtain approval before installing. The GitHub CLI is needed only for the private-GitHub option. GitHub authentication is a separate approval and must use the normal browser or device flow without exposing a token to the repository.
+
+After cloning and explaining Observatory, the agent asks what the copy should be called and whether it should be local-only or backed by a private GitHub repository. For private GitHub it next asks who or which organization should own it, then asks for exact approval before creation and push. For local-only it explains the lack of remote backup and asks for exact approval before removing the public template remote. Personal knowledge is not requested until the selected private storage boundary is verified.
+
+Local-only keeps the notes out of Git hosting, including an employer organization that permits only public repositories. It does not hide local files from administrators, backups, monitoring, or data-loss-prevention tools on a company-managed device. For personal notes, prefer a personally controlled encrypted device and an encrypted backup, follow employer policy, and never mix employer-confidential material into a personal Observatory.
+
+## 3. Manual clone and storage setup
 
 ```sh
 git clone https://github.com/fulks89-hub/observatory.git observatory
@@ -55,6 +63,8 @@ After completing **Install and verify Observatory** below, inspect the packaged 
 .venv/bin/python scripts/create_private_copy.py --check
 ```
 
+### Private GitHub
+
 To create the private copy, replace both occurrences of `OWNER/NAME` with the exact approved destination:
 
 ```sh
@@ -65,6 +75,18 @@ To create the private copy, replace both occurrences of `OWNER/NAME` with the ex
 ```
 
 `template` remains a read-only reference to the upstream public repository. `origin` is your editable repository.
+
+### Local-only
+
+After the agent explains that this removes the public template remote and leaves no remote backup, approve that exact local Git configuration change before it runs:
+
+```sh
+.venv/bin/python scripts/create_private_copy.py \
+  --prepare-local-only \
+  --confirm-local-only LOCAL-ONLY-NO-REMOTE
+```
+
+The helper accepts only a clean clone whose sole `origin` is the official public template, removes that remote, and verifies that no remotes remain. Git history, commits, diffs, and rollback continue to work locally. Adding any remote later is a new external-sharing decision and requires its own review and approval.
 
 ## 4. Start any AI agent safely
 
@@ -158,16 +180,25 @@ Radar's **Move to Atlas** action writes a review candidate only under `staging/a
 - Review files under `staging/` before promoting them.
 - Link project, concept, research, source, idea, and question cards with ordinary Markdown links.
 - Before merging changes, run `.venv/bin/observatory validate`, `.venv/bin/python -m pytest`, and `.venv/bin/observatory catalog` (use the corresponding `.venv\Scripts\` executables on Windows).
-- Push regularly to your private `origin` as a backup.
+- With private GitHub, push regularly to your verified private `origin` as a backup.
+- With local-only, use an encrypted owner-controlled backup and periodically test restoration; do not add a remote merely for convenience.
 
 ## Updating from the upstream repository
 
-Inspect updates before merging them into your customized copy:
+With private GitHub, inspect the persistent read-only `template` remote before merging updates into your customized copy:
 
 ```sh
 git fetch template
 git log --oneline main..template/main
 git diff main...template/main
+```
+
+With local-only, fetch the public template as a one-time inbound operation without adding a persistent remote:
+
+```sh
+git fetch https://github.com/fulks89-hub/observatory.git main
+git log --oneline main..FETCH_HEAD
+git diff main...FETCH_HEAD
 ```
 
 Ask an agent to review the diff against your local policies and data before merging. Never overwrite your corpus just to match the template.
