@@ -20,6 +20,10 @@ This is a fresh-history public scaffold. It contains synthetic examples only—n
 
 ## Quick start
 
+**Start with the synthetic examples:** follow [Try Observatory](docs/try-observatory.md) to search the starter and open its local dashboard before adding any personal notes. Setup time depends on your installed prerequisites.
+
+**Questions or feedback?** [Open an issue](https://github.com/fulks89-hub/observatory/issues/new/choose). For contributions, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 Requirements: Git and Python 3.12+. Mission Control additionally requires Node.js 22.12+.
 
 For an agent-driven setup, choose where your private notes should live and send the matching message to a local coding agent.
