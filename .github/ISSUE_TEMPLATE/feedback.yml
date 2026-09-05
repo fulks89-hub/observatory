@@ -12,13 +12,14 @@ body:
         - Setup or bug report
         - Question
         - Improvement suggestion
+        - Tried Observatory — experience report
     validations:
       required: true
   - type: textarea
     id: details
     attributes:
       label: Details
-      description: What did you expect, what happened, and how can we reproduce it? Use synthetic examples.
+      description: What did you try, what worked, and where did you get stuck? For bugs, include what you expected and steps to reproduce. Use synthetic examples; do not include email addresses or other personal contact details.
     validations:
       required: true
   - type: input

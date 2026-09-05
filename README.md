@@ -22,7 +22,9 @@ This is a fresh-history public scaffold. It contains synthetic examples only—n
 
 **Start with the synthetic examples:** follow [Try Observatory](docs/try-observatory.md) to search the starter and open its local dashboard before adding any personal notes. Setup time depends on your installed prerequisites.
 
-**Questions or feedback?** [Open an issue](https://github.com/fulks89-hub/observatory/issues/new/choose). For contributions, see [CONTRIBUTING.md](CONTRIBUTING.md).
+**Tried Observatory?** Whether it worked or you got stuck, we'd love to hear what you tried and how it went. [Share feedback](https://github.com/fulks89-hub/observatory/issues/new?template=feedback.yml). Feedback is optional and posted as a public GitHub issue; a GitHub account is required, but no email address is requested in the form. Please don't include private notes, credentials, or personal contact details.
+
+For contributions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Requirements: Git and Python 3.12+. Mission Control additionally requires Node.js 22.12+.
 
