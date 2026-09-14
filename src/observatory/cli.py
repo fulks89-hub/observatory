@@ -24,6 +24,7 @@ from observatory import (
     enforcement,
     preservation,
     privacy,
+    request_guard,
     snapshot,
     validation,
 )
@@ -124,6 +125,7 @@ def build_parser() -> argparse.ArgumentParser:
     integrate.add_argument("--expected-sha256")
     integrate.add_argument("--json", action="store_true")
     enforcement.add_parser(subparsers)
+    request_guard.add_parser(subparsers)
     return parser
 
 
@@ -428,6 +430,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     arguments = build_parser().parse_args(argv)
     handlers = {
         "enforce": enforcement.handle,
+        "guard-read": request_guard.handle,
         "search": _search,
         "validate": _validate,
         "catalog": _catalog,

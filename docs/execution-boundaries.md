@@ -12,6 +12,10 @@ no word-count rejection or automatic rewriting of durable knowledge.
 
 ## Structured output
 
+For checks before a tool request executes, use the opt-in
+[read guard and rule-to-enforcement map](rule-enforcement.md). Request checks do not
+replace the outcome checks below.
+
 ```sh
 .venv/bin/observatory enforce output response.json --contract contract.json
 ```
