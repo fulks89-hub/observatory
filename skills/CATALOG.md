@@ -17,6 +17,8 @@ This is the lightweight routing index for reusable agent procedures in `skills/`
 | Observatory Review | Reviewing staged, stale, disputed, or unverified knowledge | `skills/observatory-review/SKILL.md` |
 | Session Capture | Remember/brain a session or repository-wide rule request | `skills/session-capture/SKILL.md` |
 | Session Handoff | Long-running work, provider/thread switches, context/capacity constraints, expensive reconstruction | `skills/session-handoff/SKILL.md` |
+| Project Conductor | Substantial product planning, launch, resume, or enrichment through one accountable lead | `skills/project-conductor/SKILL.md` |
+| Skill Evaluation | Compare a reusable skill against a frozen baseline with provider-isolated evidence | `skills/skill-evaluation/SKILL.md` |
 | Decision Frontier | Large/foggy work needs unresolved decisions and dependencies mapped before linear planning | `skills/decision-frontier/SKILL.md` |
 | Observation Promotion | Repeated/corrective observations suggest a durable reviewed pattern | `skills/observation-promotion/SKILL.md` |
 | Project Value Review | Assessing how durable knowledge affects active/planning projects | `skills/project-value-review/SKILL.md` |

@@ -65,3 +65,22 @@ Before creating either public repository, run a release audit over the exact exp
 - inspect the resulting public GitHub tree after push before announcing it.
 
 Do not solve a failed privacy audit by deleting the file in a later public commit. Fix the export before the first public commit or recreate the public repository with clean history.
+
+## Updating an existing public release
+
+Review reusable code, tests, procedures and blank templates against the public base.
+Transfer only an explicit reviewed file list into a branch whose history descends from
+the public repository. Never merge, cherry-pick, push or attach private history, private
+review notes, raw evaluations, personal session IDs, local paths or source identifiers.
+Keep personal corpus and operational records out of the public working tree entirely.
+
+Preserve the public starter's onboarding, uninitialized POM, synthetic dashboard seeds,
+ignored generated data, documentation checks, and strict current-tree/history privacy
+validation. A private repository's passing checks do not validate a public export.
+Run the complete public gates on the exact exported revision before publication.
+
+Maintain a dated capability table in `docs/releases/` for each enhancement update:
+what shipped, what remains a separate public component, and what was intentionally
+excluded. Public release notes must explain capabilities without revealing private
+source records. Check this table during future enhancement work to catch drift; this
+is a review step, not an automatic private-to-public sync or publishing permission.

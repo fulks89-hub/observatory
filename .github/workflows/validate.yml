@@ -28,7 +28,7 @@ jobs:
       - name: Type-check Python
         run: .venv/bin/mypy src
       - name: Test Python
-        run: .venv/bin/python -m pytest
+        run: .venv/bin/python scripts/check-with-evidence.py --receipt "$RUNNER_TEMP/observatory-tests.json"
       - name: Check documentation
         run: .venv/bin/python scripts/check-documentation.py
       - name: Validate with Python

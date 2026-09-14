@@ -18,6 +18,23 @@ This is a fresh-history public scaffold. It contains synthetic examples only—n
 - **Owner controlled:** the optional Personal Operating Model is review-first and uninitialized by default; it is not a personality profile.
 - **Local first:** Mission Control provides Overview, Atlas, AI Radar, and Explore views without replacing the canonical files.
 
+## Project delivery and verification
+
+Use the [project conductor workflow](docs/project-conductor.md) for substantial builds:
+keep a product plan, a Now / Next / Later roadmap, one named lead, and verified
+checkpoints that another authorized session can resume. It starts no background agent.
+
+The [AI operating model](docs/ai-operating-model.md) connects intent, scoped retrieval,
+execution, and durable decisions. [Optional agent discovery](docs/agent-discovery-integration.md)
+provides a previewed, reversible integration with local provider instructions.
+[Execution boundary checks](docs/execution-boundaries.md) validate structured outputs,
+bind completion evidence to artifacts, and block retries with uncertain outcomes.
+[Skill evaluation](skills/skill-evaluation/SKILL.md) compares baseline and candidate
+behavior separately for each provider.
+
+See the [September enhancement review](docs/releases/2026-09-14-enhancements.md) for
+what is included and which optional integrations remain separate.
+
 ## Quick start
 
 **Start with the synthetic examples:** follow [Try Observatory](docs/try-observatory.md) to search the starter and open its local dashboard before adding any personal notes. Setup time depends on your installed prerequisites.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import os
 import subprocess
@@ -15,10 +16,12 @@ from pathlib import Path
 import yaml
 
 from observatory import (
+    agent_discovery,
     agent_evaluation,
     catalog,
     coordination,
     corpus,
+    enforcement,
     preservation,
     privacy,
     snapshot,
@@ -108,6 +111,19 @@ def build_parser() -> argparse.ArgumentParser:
     overlap.add_argument("--base-ref", default="origin/main")
     overlap.add_argument("--root", type=_root, default=Path.cwd())
     overlap.add_argument("--json", action="store_true")
+
+    integrate = subparsers.add_parser(
+        "integrate-agent",
+        help="Preview or manage a tiny global Observatory discovery rule",
+    )
+    integrate.add_argument("operation", choices=("status", "preview", "install", "uninstall"))
+    integrate.add_argument("--agent", choices=tuple(sorted(agent_discovery.AGENT_TARGETS)))
+    integrate.add_argument("--target", type=Path)
+    integrate.add_argument("--root", type=_root, default=Path.cwd())
+    integrate.add_argument("--remove", action="store_true")
+    integrate.add_argument("--expected-sha256")
+    integrate.add_argument("--json", action="store_true")
+    enforcement.add_parser(subparsers)
     return parser
 
 
@@ -337,9 +353,81 @@ def _overlap(arguments: argparse.Namespace) -> int:
     return 0 if result.ok else 1
 
 
+def _integration_diff(plan: agent_discovery.ChangePlan) -> str:
+    before = plan.before.splitlines(keepends=True)
+    after = plan.after.splitlines(keepends=True)
+    return "".join(
+        difflib.unified_diff(
+            before,
+            after,
+            fromfile=str(plan.target),
+            tofile=str(plan.target),
+        )
+    )
+
+
+def _integrate_agent(arguments: argparse.Namespace) -> int:
+    if arguments.target is None and arguments.agent is None:
+        print("choose --agent or provide an explicit --target", file=sys.stderr)
+        return 2
+    if arguments.remove and arguments.operation != "preview":
+        print("--remove is valid only with the preview operation", file=sys.stderr)
+        return 2
+    if arguments.operation in {"install", "uninstall"} and not arguments.expected_sha256:
+        print(
+            "--expected-sha256 is required; run preview and review the exact diff first",
+            file=sys.stderr,
+        )
+        return 2
+
+    try:
+        target = agent_discovery.resolve_target(
+            arguments.agent or "custom",
+            explicit_target=arguments.target,
+        )
+        action = (
+            "uninstall"
+            if arguments.operation == "uninstall"
+            or (arguments.operation == "preview" and arguments.remove)
+            else "install"
+        )
+        plan = agent_discovery.plan_change(target, arguments.root, action=action)
+        if arguments.operation in {"install", "uninstall"}:
+            agent_discovery.apply_change(plan, expected_sha256=arguments.expected_sha256)
+    except (OSError, agent_discovery.IntegrationError) as error:
+        print(f"Agent integration failed: {error}", file=sys.stderr)
+        return 2
+
+    payload = {
+        "operation": arguments.operation,
+        "action": action,
+        "target": str(plan.target),
+        "observatory_root": str(arguments.root),
+        "before_sha256": plan.before_sha256,
+        "after_sha256": plan.after_sha256,
+        "changed": plan.changed,
+        "diff": _integration_diff(plan),
+    }
+    if arguments.json:
+        print(json.dumps(payload, indent=2))
+    elif arguments.operation in {"install", "uninstall"}:
+        verb = "Installed" if arguments.operation == "install" else "Removed"
+        suffix = "" if plan.changed else " (already in the requested state)"
+        print(f"{verb} Observatory discovery integration at {plan.target}{suffix}")
+    else:
+        state = "change required" if plan.changed else "already in the requested state"
+        print(f"Target: {plan.target}")
+        print(f"Action: {action} ({state})")
+        print(f"Current SHA-256: {plan.before_sha256}")
+        if payload["diff"]:
+            print(payload["diff"], end="" if payload["diff"].endswith("\n") else "\n")
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     arguments = build_parser().parse_args(argv)
     handlers = {
+        "enforce": enforcement.handle,
         "search": _search,
         "validate": _validate,
         "catalog": _catalog,
@@ -349,6 +437,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "privacy-scan": _privacy_scan,
         "evaluate-agent": _evaluate_agent,
         "overlap": _overlap,
+        "integrate-agent": _integrate_agent,
     }
     try:
         return handlers[arguments.command](arguments)
