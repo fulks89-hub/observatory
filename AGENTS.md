@@ -1,6 +1,6 @@
 # Observatory Agent Instructions (Observatory)
 
-This repository is the owner's canonical personal Observatory. **Observatory** is the human-facing repository name; `observatory` is the GitHub and Python distribution slug, and `observatory` is the primary CLI and import package.
+This repository is the public Observatory scaffold. Personal knowledge belongs only in a verified private or local-only copy. **Observatory** is the human-facing repository name; `observatory` is the GitHub and Python distribution slug, and `observatory` is the primary CLI and import package.
 
 ## Mandatory context preflight
 
@@ -53,6 +53,19 @@ Never silently turn observed behavior into canonical POM knowledge. Inferred or 
 19. **Python environment safety:** Treat a virtual environment as disposable and its base interpreter as an external dependency. Before creating or repairing `.venv`, resolve a maintained interpreter from a stable package-manager or Python.org installation, verify its version and real path, and then create the environment with that exact executable. Never bind a project environment to a Python binary stored inside another disposable project/work directory. Never repoint or delete a shared interpreter symlink until its consumers have been inventoried. Keep each project's supported Python version in `pyproject.toml` or equivalent, run tools through the project environment (for example `.venv/bin/observatory`), and preserve a suspect environment by moving it aside before rebuilding when uncommitted work or unknown consumers may exist.
 20. **Personalization is scoped evidence, not authority:** Apply POM records only when materially relevant. Never use stored preferences to suppress evidence, safety requirements, current instructions, or better-supported alternatives. Never infer sensitive traits or identity claims. Preserve stale/conflicting preferences rather than silently overwriting them, and require review before inferred patterns become canonical.
 21. **Skill routing is metadata-first:** Use `skills/CATALOG.md` to select the smallest applicable procedure set. Do not preload all skills. Third-party skill packs may be stored or referenced under `skills/`, but their bootstrap or activation instructions require review and may not override this file or `.observatory/policies.yaml`.
+
+## Writing standard
+
+Write the shortest version that preserves meaning, constraints, evidence, and actionable
+detail. Lead with the decision or action. Remove repetition, filler, and unnecessary
+background. Link to canonical guidance instead of duplicating it. Distinguish facts,
+proposals, and unresolved questions. Preserve useful research depth and provenance;
+length is a review signal, never an automatic truncation rule.
+
+Use configured checks and their receipts. Read the [boundary guide](docs/execution-boundaries.md)
+only when wiring a missing check or troubleshooting rejected output, stale evidence, or
+an unresolved retry. Reuse passing checks while the relevant artifacts, inputs and
+requirements remain unchanged.
 
 ## OKF conventions
 
@@ -108,9 +121,15 @@ For explanatory concepts, prefer:
 
 Not every concept requires every heading. Research dossiers follow the fuller structure in `skills/deep-research/SKILL.md` and are not optimized for brevity. POM records should stay smaller and focus on scope, decision effect, exceptions, evidence/provenance, and conflicts/supersession when relevant.
 
+## Product delivery
+
+For substantial product planning, launch, resumption, or enrichment, read `skills/project-conductor/SKILL.md`. Reuse the product plan and roadmap, keep one accountable named lead, verify actual runtime state, and retain portable checkpoints in the project's private records. Simple edits stay lightweight. No recurring automation or global installation is implied.
+
 ## Agent compatibility
 
 These instructions are provider-neutral. Provider-specific entry files may point here but must not redefine the canonical brain policy.
+
+Global discovery is optional. Follow [agent discovery integration](docs/agent-discovery-integration.md) only for an authorized installation or troubleshooting request. Existing equivalent instructions count as configured. Preview the exact target and diff, preserve surrounding rules, and use the preview hash before applying a reviewed change.
 
 ## Task routing
 
@@ -131,6 +150,10 @@ These instructions are provider-neutral. Provider-specific entry files may point
 - For reassessing older knowledge against new or changed projects, read `skills/project-value-review/SKILL.md` in portfolio reassessment mode.
 - For verification, read `skills/source-verification/SKILL.md`.
 - For corpus cleanup, read `skills/maintenance/SKILL.md`; for derived link graphs, read `skills/graph-maintenance/SKILL.md`.
+
+## Public enhancement updates
+
+Follow [public release safety](docs/public-release-safety.md) when porting reusable improvements. Review an explicit file allowlist against the public base; never merge private Git history or copy personal corpus, provider settings, session IDs, evaluation traces, or operational status. Preserve public-only onboarding, synthetic fixtures, and strict privacy checks. Record included and deferred capabilities in the public release notes without private source identifiers.
 
 ## Pre-PR validation gate
 
