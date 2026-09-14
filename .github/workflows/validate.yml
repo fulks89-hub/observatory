@@ -31,6 +31,8 @@ jobs:
         run: .venv/bin/python scripts/check-with-evidence.py --receipt "$RUNNER_TEMP/observatory-tests.json"
       - name: Check documentation
         run: .venv/bin/python scripts/check-documentation.py
+      - name: Audit declared rule coverage
+        run: .venv/bin/python scripts/audit-rule-coverage.py
       - name: Validate with Python
         run: .venv/bin/observatory validate --history --strict-privacy
       - name: Build Python disposable catalog

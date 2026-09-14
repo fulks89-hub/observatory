@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 import sys
 
 import pytest
@@ -162,3 +164,38 @@ def test_cli_output(tmp_path):
 def test_number_contract_accepts_large_finite_json_integer():
     value = e.strict_json("1" + "0" * 400)
     e.validate_output(value, {"type": "number"})
+
+
+def test_clean_git_tree_can_have_changed_receipt_bytes(tmp_path):
+    """Checkout normalization can preserve Git cleanliness but invalidate evidence."""
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+
+    def git(*args):
+        return subprocess.check_output(
+            ["git", "-c", "core.autocrlf=true", "-c", "core.safecrlf=false",
+             "-c", "core.attributesFile=" + os.devnull,
+             "-c", "core.hooksPath=" + str(tmp_path / "empty-hooks"),
+             "-c", "commit.gpgSign=false", "-c", "user.name=Synthetic Fixture",
+             "-c", "user.email=fixture@example.invalid", *args],
+            cwd=tmp_path, env=env, stderr=subprocess.PIPE, timeout=10,
+        )
+
+    git("init", "-q")
+    path = tmp_path / "sample.txt"
+    original = b"alpha\nbeta\n"
+    path.write_bytes(original)
+    git("add", "sample.txt")
+    git("commit", "-qm", "Synthetic line-ending fixture")
+    assert path.read_bytes() == original
+    before = e.artifact_hashes(tmp_path, ["sample.txt"])
+    record = e.make_receipt(tmp_path, ["sample.txt"], "fixture-bytes", before, True, {})
+    e.require_receipt(tmp_path, ["sample.txt"], "fixture-bytes", record)
+
+    path.unlink()
+    git("checkout", "--", "sample.txt")
+    assert path.read_bytes() == b"alpha\r\nbeta\r\n"
+    assert git("status", "--porcelain") == b""
+    assert e.artifact_hashes(tmp_path, ["sample.txt"]) != before
+    with pytest.raises(e.BoundaryError):
+        e.require_receipt(tmp_path, ["sample.txt"], "fixture-bytes", record)
