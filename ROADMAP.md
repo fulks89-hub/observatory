@@ -15,3 +15,16 @@
 - connectors only with explicit scopes, retention, and deletion rules.
 
 Canonical Markdown remains portable regardless of which optional layers are added.
+
+## Request enforcement increment — 2026-09-14
+
+Users: maintainers and agents wiring Observatory into existing runtimes.
+Value: catch measurable request violations before dispatch while keeping outcome
+evidence separate. Scope: portable enforcement map, bounded file-read guard, opt-in
+provider adapter and synthetic regressions. See [the guide](docs/rule-enforcement.md).
+
+Acceptance: reject malformed requests, path/size violations and policy bypass attempts;
+preserve native permissions; complete all repository gates on the integrated revision.
+Launch readiness requires separate verification of repository integration and any
+authorized runtime installation. No provider configuration is activated by this release.
+Next: add specialized guards only after concrete failure evidence and reviewed scope.

@@ -66,6 +66,8 @@ Use configured checks and their receipts. Read the [boundary guide](docs/executi
 only when wiring a missing check or troubleshooting rejected output, stale evidence, or
 an unresolved retry. Reuse passing checks while the relevant artifacts, inputs and
 requirements remain unchanged.
+When a measurable rule lacks an enforcement point, consult the
+[rule-to-enforcement map](docs/rule-enforcement.md) and its opt-in request guard.
 
 ## OKF conventions
 
