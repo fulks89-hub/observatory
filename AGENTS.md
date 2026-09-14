@@ -56,11 +56,13 @@ Never silently turn observed behavior into canonical POM knowledge. Inferred or 
 
 ## Writing standard
 
+<!-- rule: concise-writing -->
 Write the shortest version that preserves meaning, constraints, evidence, and actionable
 detail. Lead with the decision or action. Remove repetition, filler, and unnecessary
 background. Link to canonical guidance instead of duplicating it. Distinguish facts,
 proposals, and unresolved questions. Preserve useful research depth and provenance;
 length is a review signal, never an automatic truncation rule.
+<!-- /rule: concise-writing -->
 
 Use configured checks and their receipts. Read the [boundary guide](docs/execution-boundaries.md)
 only when wiring a missing check or troubleshooting rejected output, stale evidence, or

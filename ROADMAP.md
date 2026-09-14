@@ -28,3 +28,16 @@ preserve native permissions; complete all repository gates on the integrated rev
 Launch readiness requires separate verification of repository integration and any
 authorized runtime installation. No provider configuration is activated by this release.
 Next: add specialized guards only after concrete failure evidence and reviewed scope.
+
+## Coverage audit increment — 2026-09-14
+
+Users: maintainers checking which rules have working controls. Value: expose gaps
+without mistaking passing tests for live enforcement. Scope: five marked core rules,
+a strict registry, a bounded named-test audit in CI, and a Git line-ending regression.
+
+Acceptance: missing/stale mappings and failed/skipped tests block the audit; counts
+declare their scope; runtime activation stays unverified; byte changes invalidate
+receipts even when Git is clean. Full repository gates validate the final revision.
+Launch readiness includes verified PR integration and post-merge checks. Follow-up
+runtime verification needs separately authorized deployment evidence. See the
+[coverage guide](docs/rule-enforcement.md#auditable-implementation-coverage).

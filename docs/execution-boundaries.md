@@ -41,6 +41,7 @@ sufficient evidence for a data contract or business requirement.
 .venv/bin/observatory enforce completion --root . --artifact src/observatory/enforcement.py --artifact tests/test_enforcement.py --check enforcement --receipt /tmp/enforcement-new-receipt.json
 ```
 
+<!-- rule: fresh-completion -->
 The receipt must be a new file. The wrapper executes the caller's explicit argument
 vector without a shell, with a bounded timeout, and records the actual exit result,
 UTC time, command fingerprint and before/after artifact hashes. Output is suppressed;
@@ -48,6 +49,7 @@ run a failed check directly when its diagnostic output is needed. Bind **every
 relevant source, test, configuration and input file**, not only one changed file.
 Changed files, missing evidence, failed checks and a different root/check/scope block
 completion. Files must be regular, inside the declared root; final symlinks fail.
+<!-- /rule: fresh-completion -->
 
 A receipt proves only that the named check passed on the listed files under the
 trusted runner. It does not prove adequate test coverage, deployment, remote CI,
@@ -56,12 +58,19 @@ The calling runtime must serialize check/use, recheck immediately before acting,
 and use immutable snapshots for hostile concurrent writers. This CLI is not a
 sandbox; only run authorized commands in the appropriate execution environment.
 
+A clean Git working tree does not prove that the checked bytes are unchanged.
+For example, checkout with `core.autocrlf=true` can rewrite LF to CRLF while Git
+still reports a clean tree. Receipts hash the actual file bytes and reject that
+change. Re-run the affected checks after conversion; do not normalize receipt hashes
+to make stale evidence pass. See [Git's line-ending documentation](https://git-scm.com/docs/gitattributes#_end_of_line_conversion).
+
 ## Uncertain operations
 
 ```sh
 .venv/bin/observatory enforce operation status.json --operation-id example-042 --fingerprint <sha256-of-canonical-request>
 ```
 
+<!-- rule: safe-retry -->
 A trusted adapter supplies fresh status with `operation_id`, `fingerprint` and
 `status`. Compute the fingerprint with `enforcement.fingerprint` over the request
 including action, destination, scope and artifact identity. Matching `committed`
@@ -69,6 +78,7 @@ returns `already_complete`: consume the result without redispatch. Only matching
 `confirmed_not_applied` returns `retry_permitted`. Unknown, in-progress, not-found,
 failed-with-unknown-effects and identity conflicts block. “Not found” alone may
 reflect eventual consistency and is deliberately insufficient.
+<!-- /rule: safe-retry -->
 
 This decision helper never executes an operation or grants new permission. The
 adapter must obtain authoritative state, honor cancellation and retry limits, and

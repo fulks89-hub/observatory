@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "scope": [
+    "AGENTS.md",
+    "docs/execution-boundaries.md",
+    "docs/rule-enforcement.md"
+  ],
+  "exclusions": [
+    "Only explicitly marked rules in the declared files are inventoried; unmarked prose and other files are outside this pilot.",
+    "Live provider configuration, repository protection settings and independent deployment evidence are not inspected by this audit."
+  ],
+  "rules": [
+    {
+      "id": "concise-writing",
+      "source": "AGENTS.md",
+      "source_sha256": "cf28ab8ebf583cbcde6c4692dc8be6b4b89be1e035c62d721bcb4a3b1e4912ed",
+      "implementation": "prose_by_design",
+      "controls": [],
+      "tests": [],
+      "activation": "not_applicable",
+      "why": "Writing quality requires contextual judgment, not a word-count gate.",
+      "enforcement_scope": "Human and agent writing review.",
+      "gaps": []
+    },
+    {
+      "id": "fresh-completion",
+      "source": "docs/execution-boundaries.md",
+      "source_sha256": "6f0c16a24b22688bd572e385fc38704012a2d8f0fad308fe93a6edb92886ee98",
+      "implementation": "implemented",
+      "controls": [
+        "src/observatory/enforcement.py",
+        "scripts/check-with-evidence.py"
+      ],
+      "tests": [
+        "tests/test_enforcement.py::test_stale_evidence_and_wrong_scope",
+        "tests/test_enforcement.py::test_mutation_during_check_and_symlinks",
+        "tests/test_enforcement.py::test_clean_git_tree_can_have_changed_receipt_bytes"
+      ],
+      "activation": "unverified",
+      "why": "Exact artifact hashes reject stale evidence.",
+      "enforcement_scope": "Calls to the completion checker and the repository test wrapper.",
+      "gaps": [
+        "Adequate test scope and a trusted runner remain required.",
+        "Unwired completion paths are not guarded; runtime activation is not established by this inventory."
+      ]
+    },
+    {
+      "id": "safe-retry",
+      "source": "docs/execution-boundaries.md",
+      "source_sha256": "0e3dc1553f7261a5730a15a3f03e33a95139c631f95d8796d031bcbfc23f1687",
+      "implementation": "implemented",
+      "controls": [
+        "src/observatory/enforcement.py"
+      ],
+      "tests": [
+        "tests/test_enforcement.py::test_uncertain_retry_blocked",
+        "tests/test_enforcement.py::test_replay_and_conflict"
+      ],
+      "activation": "unverified",
+      "why": "Identity matching and conservative status checks reject uncertain retries.",
+      "enforcement_scope": "Calls to the operation decision helper.",
+      "gaps": [
+        "Fresh authoritative status and atomic dispatch are adapter responsibilities.",
+        "Other retry paths and live adapter wiring are unverified."
+      ]
+    },
+    {
+      "id": "bounded-read",
+      "source": "docs/rule-enforcement.md",
+      "source_sha256": "d0b62c152b573ddb2356d972d93cc235c468a8214fd47e4860b2a4aadc2c485d",
+      "implementation": "implemented",
+      "controls": [
+        "src/observatory/request_guard.py"
+      ],
+      "tests": [
+        "tests/test_request_guard.py::test_size_guard_cannot_be_bypassed_by_extension",
+        "tests/test_request_guard.py::test_outside_missing_directory_traversal_and_network",
+        "tests/test_request_guard.py::test_claude_metadata_is_discarded_and_never_grants_permission"
+      ],
+      "activation": "unverified",
+      "why": "Metadata preflight applies explicit root and byte limits.",
+      "enforcement_scope": "Read requests explicitly routed through guard-read.",
+      "gaps": [
+        "Provider hook installation is unverified.",
+        "Alternate tools, filesystem races, startup failures and timeouts need independent controls."
+      ]
+    },
+    {
+      "id": "reviewed-promotion",
+      "source": "docs/rule-enforcement.md",
+      "source_sha256": "200d7614ad921921564242e7c388d38694cda23f73794557d4ca065647b2a652",
+      "implementation": "planned",
+      "controls": [],
+      "tests": [],
+      "activation": "unverified",
+      "why": "Promotion is a reviewed procedure; no deterministic approval gate is implemented.",
+      "enforcement_scope": "Future controls over installation and promotion decisions.",
+      "gaps": [
+        "The procedure can currently be skipped by a caller.",
+        "No automatic promotion or hook installation is authorized by this registry."
+      ]
+    }
+  ]
+}

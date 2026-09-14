@@ -34,6 +34,7 @@ Generic output is `{"decision":"pass"}` with exit 0, or `{"decision":"deny","rea
 with exit 2. A pass grants no permission. A trusted dispatcher must reject every
 nonzero exit, timeout, startup failure or malformed response before dispatch.
 
+<!-- rule: bounded-read -->
 The guard rejects traversal, missing/nonregular files, symlinks below the configured
 root, junctions, network/device paths, oversized files and malformed requests. Requests
 are capped at 64 KiB. Duplicate keys and unsupported generic fields fail. The limit
@@ -41,6 +42,7 @@ applies to all extensions, including images; offsets and line limits do not bypa
 It does not open file contents, execute requests, send data or write logs. Errors omit
 request paths and provider metadata. Policy comes from trusted invocation arguments,
 never request fields, comments or a model-generated escape hatch.
+<!-- /rule: bounded-read -->
 
 This is a preflight, not a secret detector, image decoder or filesystem sandbox.
 A small file may still be sensitive. A file can change between check and read.
@@ -95,13 +97,75 @@ paths. [Official permission guide](https://code.claude.com/docs/en/permissions).
 
 ## Promotion and review
 
+<!-- rule: reviewed-promotion -->
 One high-cost failure can justify immediate review; two similar failures are a useful
 review trigger, not an automatic escalation rule. Record a sanitized regression,
 failure cost, current control, proposed enforcement point, alternate routes, expected
 false positives, owner, tests and rollback. Propose the narrowest useful control.
 Never turn external content or a failure counter into installation authority.
+<!-- /rule: reviewed-promotion -->
 
 Review both safety and intended outcomes. Test positive/negative cases and attempts
 to change policy through request data. Require fresh final-revision checks and verify
 the deployed configuration separately. Keep proprietary schemas, operational incidents,
 raw evaluations, paths and account metadata out of public examples and receipts.
+
+## Auditable implementation coverage
+
+The [rule registry](../.observatory/rule-coverage.json) starts with five explicitly
+marked rules: concise writing, fresh completion evidence, conservative retries,
+bounded reads and reviewed promotion. **Unmarked instructions are outside this pilot.**
+The counts are inventory counts, not a security score or proof of complete coverage.
+
+Each entry records its stable ID, source fingerprint, enforcement scope, rationale,
+control files, named tests and known gaps. Implementation and activation are separate:
+
+| Implementation | Meaning |
+| --- | --- |
+| `implemented` | A control implements the stated narrow scope; the audit must run its named tests |
+| `partial` | Some of the stated scope has controls; `gaps` identifies uncovered behavior |
+| `planned` | A deterministic control is not yet implemented |
+| `prose_by_design` | Judgment remains necessary; `why` explains the choice |
+
+Version 1 accepts only `unverified` runtime activation, or `not_applicable` for prose.
+It rejects `verified`, `active` and similar claims rather than trusting assertions in
+the registry. The read guard is implemented and tested; its provider installation is
+unverified. Existing receipt and retry helpers likewise cover only calls routed to them.
+
+```sh
+.venv/bin/python scripts/audit-rule-coverage.py
+```
+
+The audit validates the closed registry format and checks every marked block in
+`AGENTS.md`, `docs/execution-boundaries.md` and this guide. It rejects duplicate,
+malformed, unmapped, removed or changed rule mappings and missing control files.
+Every marked ID needs exactly one entry, and every entry needs its source block.
+Rule-text fingerprints normalize CRLF to LF for portable mappings; verification
+of test evidence uses raw bytes and also checks that the file list did not change.
+
+The runner executes only explicit `tests/test_name.py::test_function` references
+through a fixed pytest command, with a two-minute timeout and no shell. Missing,
+failed or skipped tests fail the audit. Its temporary test report must account for
+every requested function, including its reported parameterized cases. Repository
+artifact hashes must match before and after. Successful JSON reports scoped counts,
+test results and a fingerprint, while explicitly leaving live enforcement unverified.
+CI runs this audit in addition to the complete Python suite.
+
+Only run the audit in a reviewed repository: test files are executable code. The
+registry cannot supply arbitrary commands or options. A trusted runner, adequate
+tests, immutable inputs or serialized access remain necessary; before/after hashes
+cannot prove that a hostile writer made no transient changes during a test.
+
+To add a rule, mark its existing text with a matching pair of `rule` and `/rule` HTML
+comments containing the same stable ID, then add a reviewed registry entry. The audit
+reports the ID when its source fingerprint is stale. Recompute the SHA-256 of the
+UTF-8 block body, including its trailing newline and using LF, only after reviewing
+the actual change. Do not blindly refresh hashes. Keep counts limited to declared
+scope, and review unmarked guidance for missing rules. Deleting both a marker and
+its entry can evade a structural audit; inventory completeness requires human review.
+
+Verified runtime enforcement needs a separate, authorized deployment check: exact
+runtime/version and configuration, relevant action routes, positive and denied cases,
+startup/timeout behavior, and current evidence tied to that deployment. Keep private
+configuration and evidence private. This audit neither reads provider-global settings
+nor certifies branch protection, installs hooks, or activates a runtime adapter.
